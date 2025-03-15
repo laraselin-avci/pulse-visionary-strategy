@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { SendIcon, Search } from 'lucide-react';
+import { SendIcon, Search, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormField, FormItem, FormControl } from '@/components/ui/form';
@@ -8,6 +8,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from '@/integrations/supabase/client';
+import { useRegulatoryInsights } from '@/hooks/useRegulatoryInsights';
 
 const chatSchema = z.object({
   message: z.string().min(1, "Please enter a message")
@@ -26,6 +28,13 @@ export const RegulatoryAssistant: React.FC = () => {
   const { toast } = useToast();
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Get access to the insights directly from the hook for AI analysis
+  const { insights } = useRegulatoryInsights(
+    [], // Empty array to get all topics
+    [], // No topic filter to get all insights
+    ['urgent', 'high', 'medium', 'low', 'info'] // All priorities
+  );
 
   const form = useForm<ChatFormValues>({
     resolver: zodResolver(chatSchema),
@@ -34,7 +43,7 @@ export const RegulatoryAssistant: React.FC = () => {
     },
   });
 
-  const onSubmit = (values: ChatFormValues) => {
+  const onSubmit = async (values: ChatFormValues) => {
     // Add user message to chat history
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -46,33 +55,64 @@ export const RegulatoryAssistant: React.FC = () => {
     setChatHistory(prev => [...prev, userMessage]);
     setIsProcessing(true);
     
-    // Simulate AI response after a delay
-    setTimeout(() => {
+    try {
+      // Call the Supabase Edge Function with the user's query and the insights
+      const { data, error } = await supabase.functions.invoke('regulatory-assistant', {
+        body: {
+          query: values.message,
+          insights: insights,
+        },
+      });
+
+      if (error) {
+        console.error('Error calling regulatory-assistant function:', error);
+        throw new Error('Failed to get a response from the AI. Please try again.');
+      }
+
+      // Add AI response to chat history
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: `I've analyzed your query about "${values.message}". Here's what I found in our regulatory database...`,
+        content: data.response || 'I could not analyze the regulatory insights. Please try again.',
         isUser: false,
         timestamp: new Date()
       };
       
       setChatHistory(prev => [...prev, aiMessage]);
-      setIsProcessing(false);
       
       toast({
-        title: "AI Response Generated",
-        description: "New regulatory insights have been provided.",
+        title: "AI Analysis Complete",
+        description: "Regulatory insights have been analyzed based on your query.",
       });
-    }, 1500);
-    
-    // Reset form
-    form.reset({ message: '' });
+    } catch (error) {
+      console.error('Error in regulatory AI assistant:', error);
+      
+      // Add error message to chat history
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: 'Sorry, I encountered an error while analyzing the regulatory insights. Please try again.',
+        isUser: false,
+        timestamp: new Date()
+      };
+      
+      setChatHistory(prev => [...prev, errorMessage]);
+      
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+      // Reset form
+      form.reset({ message: '' });
+    }
   };
 
   return (
     <div className="h-full flex flex-col p-4">
       <div className="mb-4">
         <h2 className="text-lg font-semibold">AI Regulatory Assistant</h2>
-        <p className="text-gray-600">Ask any question about regulations and get AI-powered insights.</p>
+        <p className="text-gray-600">Ask questions about the regulatory insights to get AI-powered analysis.</p>
       </div>
       
       {/* Chat Input at top */}
@@ -87,9 +127,10 @@ export const RegulatoryAssistant: React.FC = () => {
                   <div className="relative">
                     <Textarea
                       className="pl-4 pr-12 py-3 bg-white border-gray-200 focus-visible:ring-blue-500 min-h-[80px] resize-none"
-                      placeholder="What would you like to know about regulations?"
+                      placeholder="What would you like to know about the regulatory insights?"
                       {...field}
                       rows={3}
+                      disabled={isProcessing}
                     />
                     <Button
                       type="submit"
@@ -135,14 +176,21 @@ export const RegulatoryAssistant: React.FC = () => {
                 <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></div>
                 <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
                 <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                <span className="text-sm ml-2">Analyzing regulatory insights...</span>
               </div>
             )}
           </>
-        ) : (
+        ) : insights.length > 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-500">
             <Search className="h-12 w-12 mb-2 text-gray-400" />
-            <p className="text-center">Ask any question about regulations</p>
-            <p className="text-center text-sm">For example: "What are the latest updates on data privacy?"</p>
+            <p className="text-center">Ask any question about the regulatory insights</p>
+            <p className="text-center text-sm">For example: "What are the latest updates on data privacy?" or "Summarize the most urgent regulatory concerns."</p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+            <AlertCircle className="h-12 w-12 mb-2 text-amber-500" />
+            <p className="text-center font-medium">No regulatory insights available</p>
+            <p className="text-center text-sm">Please select some topics to monitor or check your data source.</p>
           </div>
         )}
       </div>
