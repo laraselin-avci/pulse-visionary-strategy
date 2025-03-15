@@ -12,7 +12,7 @@ export interface RegulatoryInsight {
   priority: AlertPriority;
   date: string;
   topic: string;
-  topicId: string; // Changed from optional to required to match usage
+  topicId: string;
 }
 
 export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
@@ -60,11 +60,11 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               priority: (relevantExtracts?.priority || analysisData?.priority || 'medium') as AlertPriority,
               date: relevantExtracts?.date || analysisData?.date || new Date(item.analysis_date).toLocaleString(),
               topic: item.topics && item.topics.length > 0 ? item.topics[0] : '',
-              topicId: item.topic_id || '' // Ensure topicId is always a string
+              topicId: item.topic_id || ''
             };
           });
           
-          // Add mock OpenAI regulatory insights
+          // Add OpenAI regulatory insights
           const openAIMockInsights: RegulatoryInsight[] = [
             {
               id: 'openai-1',
@@ -73,9 +73,8 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               source: 'European Commission Press Release',
               priority: 'high',
               date: 'May 15, 2023',
-              topic: 'AI Regulation',
-              topicId: selectedTopicIds.find(id => 
-                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation')) || ''
+              topic: 'Data Privacy',
+              topicId: '3'
             },
             {
               id: 'openai-2',
@@ -85,8 +84,7 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               priority: 'urgent',
               date: 'June 2, 2023',
               topic: 'AI Regulation',
-              topicId: selectedTopicIds.find(id => 
-                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation')) || ''
+              topicId: '1'
             },
             {
               id: 'openai-3',
@@ -95,20 +93,18 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               source: 'European Digital Authority',
               priority: 'medium',
               date: 'May 28, 2023',
-              topic: 'AI Regulation',
-              topicId: selectedTopicIds.find(id => 
-                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation')) || ''
+              topic: 'AI Governance',
+              topicId: '7'
             },
             {
               id: 'openai-4',
-              title: 'Public Sector Guidelines for Using OpenAI Tools Released',
-              description: 'The Ministry of Digital Affairs has published guidelines for public sector organizations on responsible use of OpenAI and similar AI tools. The guidelines include security protocols and content guidelines.',
-              source: 'Ministry of Digital Affairs',
+              title: 'OpenAI Releases New Guidelines for Model Transparency',
+              description: 'OpenAI has published new guidelines on model transparency, including detailed explanations of training methodologies and dataset composition to address concerns about algorithmic bias.',
+              source: 'OpenAI Blog',
               priority: 'medium',
               date: 'June 10, 2023',
-              topic: 'Digital Infrastructure',
-              topicId: selectedTopicIds.find(id => 
-                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'Digital Infrastructure')) || ''
+              topic: 'AI Transparency',
+              topicId: '5'
             },
             {
               id: 'openai-5',
@@ -118,24 +114,47 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               priority: 'low',
               date: 'June 15, 2023',
               topic: 'AI Regulation',
-              topicId: selectedTopicIds.find(id => 
-                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation')) || ''
+              topicId: '1'
+            },
+            {
+              id: 'openai-6',
+              title: 'OpenAI Contributes to Open Source AI Research Initiative',
+              description: 'OpenAI has announced a major contribution to an open source AI research initiative, sharing select model architectures and training methodologies to foster collaboration and advancement in the field.',
+              source: 'OpenAI Research Blog',
+              priority: 'medium',
+              date: 'June 20, 2023',
+              topic: 'Open Source AI',
+              topicId: '8'
+            },
+            {
+              id: 'openai-7',
+              title: 'Ethics Board Established for LLM Governance at OpenAI',
+              description: 'OpenAI has formed an independent ethics board to oversee decisions related to model deployments, usage policies, and response to misuse, composed of experts from diverse disciplines.',
+              source: 'AI Ethics Journal',
+              priority: 'high',
+              date: 'July 1, 2023',
+              topic: 'AI Ethics',
+              topicId: '4'
+            },
+            {
+              id: 'openai-8',
+              title: 'OpenAI Faces Patent Infringement Claims Over Training Data',
+              description: 'A group of content creators has filed intellectual property claims against OpenAI, alleging unauthorized use of copyrighted materials in training datasets for their language models.',
+              source: 'Technology Law Review',
+              priority: 'high',
+              date: 'July 5, 2023',
+              topic: 'AI Intellectual Property',
+              topicId: '10'
             }
           ];
           
-          // Only add OpenAI insights if an AI Regulation topic is selected or if no topics are selected
-          let combinedInsights: RegulatoryInsight[] = [...formattedInsights];
+          // Filter OpenAI insights to match selected topics if any are selected
+          const filteredOpenAIInsights = selectedTopicIds.length > 0
+            ? openAIMockInsights.filter(insight => 
+                selectedTopicIds.includes(insight.topicId))
+            : openAIMockInsights;
           
-          if (selectedTopicIds.length === 0 || selectedTopicIds.some(id => 
-              formattedInsights.some(insight => insight.topicId === id && 
-                (insight.topic === 'AI Regulation' || insight.topic === 'Digital Infrastructure')))) {
-            // Filter OpenAI insights to only include ones that match selected topics or all if no topics selected
-            const filteredOpenAIInsights = openAIMockInsights.filter(insight => 
-              !selectedTopicIds.length || (insight.topicId && selectedTopicIds.includes(insight.topicId)));
-            
-            combinedInsights = [...formattedInsights, ...filteredOpenAIInsights];
-          }
-          
+          const combinedInsights: RegulatoryInsight[] = [...formattedInsights, ...filteredOpenAIInsights];
           setInsights(combinedInsights);
         }
       } catch (error: any) {

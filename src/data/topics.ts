@@ -5,75 +5,75 @@ import { Topic } from '@/types/topics';
 export const allTopics: Topic[] = [
   {
     id: '1',
-    name: 'Solar Subsidies',
-    category: 'Energy',
-    description: 'Government financial incentives designed to promote the adoption of solar energy technologies.',
+    name: 'AI Regulation',
+    category: 'Technology',
+    description: 'Legal frameworks governing the development and use of artificial intelligence technologies.',
     following: true
   },
   {
     id: '2',
-    name: 'Energy Taxation',
-    category: 'Energy',
-    description: 'Taxes imposed on energy production, distribution, and consumption to regulate the energy market.',
+    name: 'LLM Safety',
+    category: 'Technology',
+    description: 'Guidelines and measures to ensure large language models operate safely and ethically.',
     following: false
   },
   {
     id: '3',
-    name: 'Digital Infrastructure',
+    name: 'Data Privacy',
     category: 'Technology',
-    description: 'The physical and organizational structures needed for the operation of digital technologies.',
+    description: 'Regulations around data collection, storage, and usage for AI training and operations.',
     following: true
   },
   {
     id: '4',
-    name: 'Renewable Energy',
-    category: 'Energy',
-    description: 'Energy collected from renewable resources that are naturally replenished on a human timescale.',
+    name: 'AI Ethics',
+    category: 'Technology',
+    description: 'Principles and frameworks for ethical AI development and deployment.',
     following: false
   },
   {
     id: '5',
-    name: 'Carbon Pricing',
-    category: 'Environment',
-    description: 'An instrument that captures the external costs of greenhouse gas emissions.',
+    name: 'AI Transparency',
+    category: 'Technology',
+    description: 'Requirements for making AI systems and their decision-making processes understandable.',
     following: true
   },
   {
     id: '6',
-    name: 'AI Regulation',
+    name: 'Algorithmic Bias',
     category: 'Technology',
-    description: 'Legal frameworks governing the development and use of artificial intelligence technologies.',
+    description: 'Regulations addressing biases in AI algorithms and their societal impacts.',
     following: false
   },
   {
     id: '7',
-    name: 'Healthcare Reform',
-    category: 'Healthcare',
-    description: 'Changes to healthcare systems aimed at improving quality, access, and efficiency.',
+    name: 'AI Governance',
+    category: 'Technology',
+    description: 'Frameworks for governing AI development and use across organizations and jurisdictions.',
     following: true
   },
   {
     id: '8',
-    name: 'Pharmaceutical Pricing',
-    category: 'Healthcare',
-    description: 'Regulations and policies that determine how pharmaceutical products are priced in the market.',
+    name: 'Open Source AI',
+    category: 'Technology',
+    description: 'Policies regarding open source AI development, transparency, and accessibility.',
     following: false
   },
   {
     id: '9',
-    name: 'Education Funding',
-    category: 'Education',
-    description: 'Allocation of financial resources to educational institutions and programs.',
+    name: 'AI Research',
+    category: 'Technology',
+    description: 'Academic and industry research initiatives advancing AI capabilities and understanding.',
     following: true
   },
   {
     id: '10',
-    name: 'Tax Reform',
-    category: 'Finance',
-    description: 'Changes to the way governments collect taxes from individuals and businesses.',
+    name: 'AI Intellectual Property',
+    category: 'Technology',
+    description: 'Legal frameworks for AI-related intellectual property, including patents and copyrights.',
     following: false
   }
 ];
 
 // Define the categories
-export const categories: string[] = ['Energy', 'Technology', 'Environment', 'Healthcare', 'Education', 'Finance'];
+export const categories: string[] = ['Technology', 'Ethics', 'Policy', 'Research', 'Industry'];
