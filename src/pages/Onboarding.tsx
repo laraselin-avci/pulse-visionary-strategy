@@ -10,13 +10,17 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+interface OnboardingProps {
+  onWebsiteSubmit?: () => void;
+}
+
 const formSchema = z.object({
   websiteUrl: z.string().url({ message: "Please enter a valid website URL" })
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-const Onboarding: React.FC = () => {
+const Onboarding: React.FC<OnboardingProps> = ({ onWebsiteSubmit }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -44,12 +48,20 @@ const Onboarding: React.FC = () => {
       // Store the preselected topics in localStorage (in a real app, this would come from a backend)
       localStorage.setItem('preselectedTopics', JSON.stringify(preselectedTopics));
       
+      // Set the flag indicating a website has been submitted
+      localStorage.setItem('websiteSubmitted', 'true');
+      
+      // Call the callback if provided
+      if (onWebsiteSubmit) {
+        onWebsiteSubmit();
+      }
+      
       toast({
         title: "Website analyzed successfully",
         description: "We've pre-selected topics based on your website content.",
       });
       
-      // Navigate to dashboard after successful analysis
+      // Navigate to topics after successful analysis
       navigate('/topics');
     } catch (error) {
       console.error('Error analyzing website:', error);
