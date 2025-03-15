@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { useDashboardData } from '@/hooks/useDashboardData';
 import { 
   ResizablePanelGroup,
   ResizablePanel,
@@ -10,20 +9,18 @@ import {
 import { MainContent } from '@/components/report/MainContent';
 import { RegulatoryAssistant } from '@/components/report/RegulatoryAssistant';
 import { useTopicData } from '@/hooks/useTopicData';
-import { Topic } from '@/types/topics';
 import { useToast } from '@/components/ui/use-toast';
+import { useRegulatoryInsights } from '@/hooks/useRegulatoryInsights';
 
 const Report = () => {
   const { toast } = useToast();
-  const { 
-    alerts: insights, 
-    filteredAlerts: filteredInsights,
-    handleTopicClick
-  } = useDashboardData();
   
   // Fetch topics from the database
-  const { topics, isLoading } = useTopicData();
+  const { topics, isLoading: topicsLoading } = useTopicData();
   const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
+
+  // Fetch insights from the database
+  const { insights, filteredInsights, isLoading: insightsLoading } = useRegulatoryInsights(selectedTopicIds);
 
   // Initialize selected topics from localStorage
   useEffect(() => {
@@ -74,11 +71,11 @@ const Report = () => {
       >
         {/* Left Panel - Topics and Insights */}
         <ResizablePanel defaultSize={67} minSize={50}>
-          {isLoading ? (
+          {topicsLoading || insightsLoading ? (
             <div className="h-full p-4 flex items-center justify-center">
               <div className="flex flex-col items-center gap-2">
                 <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
-                <p className="text-sm text-gray-500">Loading topics...</p>
+                <p className="text-sm text-gray-500">Loading data...</p>
               </div>
             </div>
           ) : (

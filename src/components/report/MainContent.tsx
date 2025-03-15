@@ -3,13 +3,14 @@ import React from 'react';
 import { TopicFilter } from '@/components/dashboard/TopicFilter';
 import { InsightsTable } from '@/components/dashboard/InsightsTable';
 import { Topic } from '@/types/topics';
+import { RegulatoryInsight } from '@/hooks/useRegulatoryInsights';
 
 interface MainContentProps {
   topics: Topic[];
   selectedTopics: string[];
   handleTopicClick: (topicId: string) => void;
-  insights: any[];
-  filteredInsights: any[];
+  insights: RegulatoryInsight[];
+  filteredInsights: RegulatoryInsight[];
 }
 
 export const MainContent: React.FC<MainContentProps> = ({

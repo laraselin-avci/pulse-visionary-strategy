@@ -2,19 +2,10 @@
 import React from 'react';
 import { AlertCard, AlertPriority } from '@/components/ui/alert-card';
 import { useToast } from '@/components/ui/use-toast';
-
-interface InsightItem {
-  id: string;
-  title: string;
-  description: string;
-  source: string;
-  priority: AlertPriority;
-  date: string;
-  topic: string;
-}
+import { RegulatoryInsight } from '@/hooks/useRegulatoryInsights';
 
 interface InsightsTableProps {
-  insights: InsightItem[];
+  insights: RegulatoryInsight[];
 }
 
 export const InsightsTable: React.FC<InsightsTableProps> = ({ insights }) => {
