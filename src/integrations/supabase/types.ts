@@ -72,6 +72,121 @@ export type Database = {
         }
         Relationships: []
       }
+      topic_mentions: {
+        Row: {
+          content_id: string
+          content_type: string
+          detected_at: string
+          id: string
+          is_notified: boolean
+          mention_context: string | null
+          topic_id: string
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          detected_at?: string
+          id?: string
+          is_notified?: boolean
+          mention_context?: string | null
+          topic_id: string
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          detected_at?: string
+          id?: string
+          is_notified?: boolean
+          mention_context?: string | null
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_mentions_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topic_subscriptions: {
+        Row: {
+          created_at: string
+          id: string
+          topic_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          topic_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          topic_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_subscriptions_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "topic_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topics: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          keywords: string[]
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          keywords: string[]
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          keywords?: string[]
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tweets: {
         Row: {
           analysis_result: Json | null
@@ -105,6 +220,30 @@ export type Database = {
           tweet_id?: string
           user_handle?: string
           user_name?: string | null
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_login: string | null
+          name: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          last_login?: string | null
+          name?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_login?: string | null
+          name?: string | null
         }
         Relationships: []
       }
