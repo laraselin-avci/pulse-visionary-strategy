@@ -74,7 +74,8 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               priority: 'high',
               date: 'May 15, 2023',
               topic: 'AI Regulation',
-              topicId: selectedTopicIds.find(id => formattedInsights.find(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+              topicId: selectedTopicIds.find(id => 
+                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
             },
             {
               id: 'openai-2',
@@ -84,7 +85,8 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               priority: 'urgent',
               date: 'June 2, 2023',
               topic: 'AI Regulation',
-              topicId: selectedTopicIds.find(id => formattedInsights.find(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+              topicId: selectedTopicIds.find(id => 
+                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
             },
             {
               id: 'openai-3',
@@ -94,7 +96,8 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               priority: 'medium',
               date: 'May 28, 2023',
               topic: 'AI Regulation',
-              topicId: selectedTopicIds.find(id => formattedInsights.find(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+              topicId: selectedTopicIds.find(id => 
+                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
             },
             {
               id: 'openai-4',
@@ -104,7 +107,8 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               priority: 'medium',
               date: 'June 10, 2023',
               topic: 'Digital Infrastructure',
-              topicId: selectedTopicIds.find(id => formattedInsights.find(insight => insight.topicId === id && insight.topic === 'Digital Infrastructure'))
+              topicId: selectedTopicIds.find(id => 
+                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'Digital Infrastructure'))
             },
             {
               id: 'openai-5',
@@ -114,7 +118,8 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               priority: 'low',
               date: 'June 15, 2023',
               topic: 'AI Regulation',
-              topicId: selectedTopicIds.find(id => formattedInsights.find(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+              topicId: selectedTopicIds.find(id => 
+                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
             }
           ];
           
@@ -124,8 +129,11 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
           if (selectedTopicIds.length === 0 || selectedTopicIds.some(id => 
               formattedInsights.some(insight => insight.topicId === id && 
                 (insight.topic === 'AI Regulation' || insight.topic === 'Digital Infrastructure')))) {
-            combinedInsights = [...formattedInsights, ...openAIMockInsights.filter(insight => 
-              !selectedTopicIds.length || selectedTopicIds.includes(insight.topicId || ''))];
+            // Filter OpenAI insights to only include ones that match selected topics or all if no topics selected
+            const filteredOpenAIInsights = openAIMockInsights.filter(insight => 
+              !selectedTopicIds.length || (insight.topicId && selectedTopicIds.includes(insight.topicId)));
+            
+            combinedInsights = [...formattedInsights, ...filteredOpenAIInsights];
           }
           
           setInsights(combinedInsights);
