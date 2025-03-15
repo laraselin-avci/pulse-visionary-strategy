@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCards } from '@/components/dashboard/StatCards';
 import { TopicFilter } from '@/components/dashboard/TopicFilter';
-import { AlertsList } from '@/components/dashboard/AlertsList';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -70,14 +69,11 @@ const Index = () => {
         onTopicClick={handleTopicClick} 
       />
       
-      <div className="flex items-center justify-between mb-4 mt-8">
-        <h2 className="text-lg font-semibold text-gray-900">Recent Alerts</h2>
+      <div className="mt-8 text-center">
         <Button variant="outline" size="sm" asChild>
-          <a href="/insights">View All</a>
+          <a href="/insights">View All Insights</a>
         </Button>
       </div>
-      
-      <AlertsList alerts={filteredAlerts.slice(0, 2)} />
     </MainLayout>
   );
 };
