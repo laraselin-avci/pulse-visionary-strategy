@@ -1,13 +1,14 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Check, Plus, PenLine } from 'lucide-react';
+import { Check, Plus, PenLine, Globe } from 'lucide-react';
 
 interface TopicCardProps {
   id: string;
   name: string;
   description: string;
   isSelected: boolean;
+  isPublic?: boolean;
   onSelect: (topicId: string) => void;
   onEdit?: () => void;
 }
@@ -17,6 +18,7 @@ const TopicCard: React.FC<TopicCardProps> = ({
   name,
   description,
   isSelected,
+  isPublic = false,
   onSelect,
   onEdit
 }) => {
@@ -30,7 +32,15 @@ const TopicCard: React.FC<TopicCardProps> = ({
       )}
     >
       <div className="flex items-center justify-between">
-        <span className="font-medium text-gray-800">{name}</span>
+        <div className="flex items-center">
+          <span className="font-medium text-gray-800">{name}</span>
+          {isPublic && (
+            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+              <Globe className="h-3 w-3 mr-1" />
+              Public
+            </span>
+          )}
+        </div>
         <div className="flex items-center space-x-2">
           {onEdit && (
             <button

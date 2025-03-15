@@ -5,6 +5,7 @@ export interface Topic {
   category: string;
   description: string;
   following: boolean;
+  is_public?: boolean;
 }
 
 export interface EditableTopicData {
