@@ -47,6 +47,11 @@ export const useTopicData = () => {
   // Add a new topic to Supabase
   const addTopic = async (topicData: any) => {
     try {
+      // Generate a temporary fixed user ID for development (UUID format)
+      // NOTE: This is a temporary solution for development. In production, 
+      // this should be replaced with the actual authenticated user's ID.
+      const temporaryUserId = '00000000-0000-0000-0000-000000000000';
+      
       // Add new topic to Supabase
       const { data: newTopicData, error } = await supabase
         .from('topics')
@@ -55,13 +60,19 @@ export const useTopicData = () => {
           description: topicData.description,
           is_public: false,
           keywords: [], // Default empty array
-          // user_id will be handled by RLS or with auth context in a real app
-          // For now, use a default or anonymous user ID if needed
-          user_id: '00000000-0000-0000-0000-000000000000' // Use a default user ID
+          user_id: temporaryUserId // Use a fixed user ID for development
         })
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding topic:', error);
+        toast({
+          title: "Error adding topic",
+          description: error.message,
+          variant: "destructive",
+        });
+        throw error;
+      }
       
       if (newTopicData && newTopicData.length > 0) {
         const newTopic = {
