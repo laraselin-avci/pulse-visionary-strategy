@@ -15,14 +15,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Textarea } from "@/components/ui/textarea";
 import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter
-} from '@/components/ui/dialog';
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle
+} from '@/components/ui/resizable';
 
 const chatSchema = z.object({
   message: z.string().min(1, "Please enter a message")
@@ -47,7 +43,6 @@ const Report = () => {
   } = useDashboardData();
   
   const { toast } = useToast();
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -99,58 +94,80 @@ const Report = () => {
         <p className="text-gray-600">Monitor and analyze key regulatory developments</p>
       </div>
 
-      {/* Chat Dialog with Button */}
-      <div className="mb-6 animate-slide-up">
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="bg-white border-gray-200 shadow-sm hover:bg-gray-50 text-gray-700 gap-2 px-4"
-            >
-              <Search className="h-4 w-4" />
-              <span>Ask about any regulatory topic...</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md md:max-w-xl">
-            <DialogHeader>
-              <DialogTitle>AI Regulatory Assistant</DialogTitle>
-              <DialogDescription>
-                Ask any question about regulations and get AI-powered insights.
-              </DialogDescription>
-            </DialogHeader>
+      <ResizablePanelGroup
+        direction="horizontal"
+        className="min-h-[600px] rounded-lg border"
+      >
+        {/* Left Panel - Topics and Insights */}
+        <ResizablePanel defaultSize={50} minSize={30}>
+          <div className="h-full p-4 overflow-auto">
+            {/* Monitored Topics */}
+            <TopicFilter 
+              topics={topics} 
+              selectedTopics={selectedTopics} 
+              onTopicClick={handleTopicClick} 
+            />
+            
+            {/* Insights */}
+            <div className="mt-8">
+              <h2 className="text-lg font-semibold mb-4">Regulatory Insights</h2>
+              <InsightsList insights={filteredInsights} showHeader={false} />
+            </div>
+          </div>
+        </ResizablePanel>
+        
+        {/* Resize Handle */}
+        <ResizableHandle withHandle />
+        
+        {/* Right Panel - Chat Interface */}
+        <ResizablePanel defaultSize={50} minSize={30}>
+          <div className="h-full flex flex-col p-4">
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold">AI Regulatory Assistant</h2>
+              <p className="text-gray-600">Ask any question about regulations and get AI-powered insights.</p>
+            </div>
             
             {/* Chat History */}
-            {chatHistory.length > 0 && (
-              <div className="border rounded-md p-4 mb-4 max-h-[300px] overflow-y-auto">
-                {chatHistory.map((message) => (
-                  <div 
-                    key={message.id}
-                    className={`mb-3 ${message.isUser ? 'ml-auto max-w-[80%]' : 'mr-auto max-w-[80%]'}`}
-                  >
+            <div className="flex-1 border rounded-md p-4 mb-4 overflow-y-auto">
+              {chatHistory.length > 0 ? (
+                <>
+                  {chatHistory.map((message) => (
                     <div 
-                      className={`p-3 rounded-lg ${
-                        message.isUser 
-                          ? 'bg-blue-600 text-white rounded-tr-none' 
-                          : 'bg-gray-100 text-gray-800 rounded-tl-none'
-                      }`}
+                      key={message.id}
+                      className={`mb-3 ${message.isUser ? 'ml-auto max-w-[80%]' : 'mr-auto max-w-[80%]'}`}
                     >
-                      {message.content}
+                      <div 
+                        className={`p-3 rounded-lg ${
+                          message.isUser 
+                            ? 'bg-blue-600 text-white rounded-tr-none' 
+                            : 'bg-gray-100 text-gray-800 rounded-tl-none'
+                        }`}
+                      >
+                        {message.content}
+                      </div>
+                      <div className={`text-xs text-gray-500 mt-1 ${message.isUser ? 'text-right' : 'text-left'}`}>
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
                     </div>
-                    <div className={`text-xs text-gray-500 mt-1 ${message.isUser ? 'text-right' : 'text-left'}`}>
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  ))}
+                  {isProcessing && (
+                    <div className="flex items-center space-x-2 text-gray-500 mb-3">
+                      <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></div>
+                      <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                     </div>
-                  </div>
-                ))}
-                {isProcessing && (
-                  <div className="flex items-center space-x-2 text-gray-500 mb-3">
-                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></div>
-                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                  <Search className="h-12 w-12 mb-2 text-gray-400" />
+                  <p className="text-center">Ask any question about regulations</p>
+                  <p className="text-center text-sm">For example: "What are the latest updates on data privacy?"</p>
+                </div>
+              )}
+            </div>
             
+            {/* Chat Input */}
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -194,22 +211,9 @@ const Report = () => {
                 )}
               </form>
             </Form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Monitored Topics */}
-      <TopicFilter 
-        topics={topics} 
-        selectedTopics={selectedTopics} 
-        onTopicClick={handleTopicClick} 
-      />
-      
-      {/* Insights */}
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold mb-4">Regulatory Insights</h2>
-        <InsightsList insights={filteredInsights} showHeader={false} />
-      </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </MainLayout>
   );
 };
