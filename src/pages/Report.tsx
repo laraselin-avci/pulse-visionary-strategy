@@ -28,6 +28,14 @@ const Report = () => {
     priorityFilter
   );
 
+  // Log some debug info
+  console.log('Report component data:', {
+    topicsCount: topics.length,
+    selectedTopicIds,
+    insightsCount: insights.length,
+    filteredInsightsCount: filteredInsights.length
+  });
+
   // Initialize selected topics from localStorage
   useEffect(() => {
     const savedTopics = localStorage.getItem('selectedTopics');

@@ -1,8 +1,10 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { RegulatoryInsight, priorityOrder } from '@/types/regulatory';
 import { AlertPriority } from '@/components/ui/alert-card';
 
 export const fetchInsightsFromDatabase = async () => {
+  console.log('Fetching insights from database...');
   // Fetch both regular topic analyses and regulatory insights
   const { data, error } = await supabase
     .from('topic_analyses')
@@ -14,27 +16,40 @@ export const fetchInsightsFromDatabase = async () => {
     throw error;
   }
 
+  console.log('Fetched insights data:', data);
   return data || [];
 };
 
 export const formatDatabaseInsights = (data: any[]): RegulatoryInsight[] => {
+  console.log('Formatting database insights, count:', data.length);
+  
   return data.map(item => {
-    const analysisData = item.analysis_data as any;
-    const relevantExtracts = item.relevant_extracts as any;
+    // Safely access nested properties
+    const analysisData = item.analysis_data || {};
+    const relevantExtracts = item.relevant_extracts || {};
     
-    // Map the topic from the array to a string (taking the first topic if there's more than one)
-    const topic = item.topics && item.topics.length > 0 ? item.topics[0] : '';
+    // Safely handle topics - it could be an array or a string
+    let topicValue = '';
+    if (item.topics && Array.isArray(item.topics) && item.topics.length > 0) {
+      topicValue = item.topics[0];
+    } else if (typeof item.topics === 'string') {
+      topicValue = item.topics;
+    }
     
-    return {
-      id: item.id,
-      title: item.summary || analysisData?.title || '',
-      description: relevantExtracts?.description || analysisData?.description || '',
-      source: relevantExtracts?.source || analysisData?.source || '',
-      priority: (relevantExtracts?.priority || analysisData?.priority || 'medium') as AlertPriority,
-      date: relevantExtracts?.date || analysisData?.date || new Date(item.analysis_date).toLocaleString(),
-      topic: topic,
-      topicId: item.topic_id || '' // This might be null based on our database
+    // Create a well-formed insight with default values for missing properties
+    const insight: RegulatoryInsight = {
+      id: item.id || '',
+      title: item.summary || analysisData.title || 'Untitled Insight',
+      description: relevantExtracts.description || analysisData.description || item.summary || '',
+      source: relevantExtracts.source || analysisData.source || 'Internal Source',
+      priority: (relevantExtracts.priority || analysisData.priority || 'medium') as AlertPriority,
+      date: relevantExtracts.date || analysisData.date || new Date(item.analysis_date).toLocaleString(),
+      topic: topicValue,
+      topicId: item.topic_id || ''
     };
+    
+    console.log('Formatted insight:', insight);
+    return insight;
   });
 };
 
@@ -44,6 +59,12 @@ export const filterInsightsByTopicAndPriority = (
   priorityFilter: AlertPriority[],
   topics: any[] // Add topics parameter to map names to IDs
 ): RegulatoryInsight[] => {
+  console.log('Filtering insights:', {
+    insightsCount: insights.length,
+    selectedTopicIds,
+    priorityFilter
+  });
+  
   // If no topics selected, show all insights filtered by priority
   let filteredInsights = insights;
   
@@ -71,6 +92,8 @@ export const filterInsightsByTopicAndPriority = (
   filteredInsights = filteredInsights.filter(insight => 
     priorityFilter.includes(insight.priority)
   );
+
+  console.log('Filtered insights count:', filteredInsights.length);
 
   // Sort by priority
   return filteredInsights.sort((a, b) => 

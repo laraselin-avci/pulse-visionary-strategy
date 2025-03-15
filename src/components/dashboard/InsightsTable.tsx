@@ -18,24 +18,38 @@ export const InsightsTable: React.FC<InsightsTableProps> = ({ insights }) => {
     });
   };
 
+  // Log insights for debugging
+  console.log('Rendering insights table with insights:', insights);
+
   return (
     <div className="w-full overflow-auto space-y-4">
-      {insights.map((insight) => (
-        <AlertCard
-          key={insight.id}
-          title={insight.title}
-          description={insight.description}
-          source={insight.source}
-          priority={insight.priority}
-          date={insight.date}
-          topic={insight.topic}
-          onClick={() => handleViewDetails(insight.id)}
-        />
-      ))}
+      {insights.map((insight) => {
+        // Validate insight data before rendering
+        if (!insight || !insight.id) {
+          console.error('Invalid insight data:', insight);
+          return null;
+        }
+        
+        return (
+          <AlertCard
+            key={insight.id}
+            title={insight.title || 'Untitled Insight'}
+            description={insight.description || 'No description available'}
+            source={insight.source || 'Unknown source'}
+            priority={insight.priority || 'medium'}
+            date={insight.date || 'Unknown date'}
+            topic={insight.topic || 'Unspecified topic'}
+            onClick={() => handleViewDetails(insight.id)}
+          />
+        );
+      })}
       
-      {insights.length === 0 && (
+      {(!insights || insights.length === 0) && (
         <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-md">
-          No regulatory insights found for the selected topics.
+          No regulatory insights found. 
+          <div className="mt-2 text-sm">
+            Check Supabase for data in the topic_analyses table or adjust your filters.
+          </div>
         </div>
       )}
     </div>
