@@ -39,10 +39,12 @@ export const useTopics = () => {
       const formattedTopics: Topic[] = data.map((topic: any) => ({
         id: topic.id,
         name: topic.name,
-        category: topic.category || 'Uncategorized', // Default category if none exists
+        // Since category is not in the database schema, we'll derive it from keywords or name
+        category: deriveCategoryFromTopic(topic),
         description: topic.description || '',
         following: false, // Will be updated when we fetch selected topics
-        is_public: topic.is_public
+        is_public: topic.is_public,
+        keywords: topic.keywords
       }));
 
       setTopics(formattedTopics);
@@ -56,6 +58,61 @@ export const useTopics = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Helper function to derive a category when it's not in the database
+  const deriveCategoryFromTopic = (topic: any): string => {
+    // If the category is explicitly set in the database (future-proofing)
+    if (topic.category) {
+      return topic.category;
+    }
+    
+    // Try to derive a category from keywords
+    if (topic.keywords && topic.keywords.length > 0) {
+      const keywordCategories: Record<string, string> = {
+        'AI': 'Technology',
+        'regulation': 'Government',
+        'policy': 'Government',
+        'ethics': 'Ethics',
+        'privacy': 'Privacy',
+        'data': 'Data',
+        'safety': 'Safety',
+        'research': 'Research',
+        'funding': 'Finance',
+        'infrastructure': 'Infrastructure'
+      };
+      
+      // Try to find a matching category from the keywords
+      for (const keyword of topic.keywords) {
+        for (const [key, category] of Object.entries(keywordCategories)) {
+          if (keyword.toLowerCase().includes(key.toLowerCase())) {
+            return category;
+          }
+        }
+      }
+    }
+    
+    // Default categories based on name patterns
+    const namePatterns: Record<string, string> = {
+      'AI': 'Technology',
+      'Regulation': 'Government',
+      'Ethics': 'Ethics',
+      'Privacy': 'Privacy',
+      'Data': 'Data',
+      'Safety': 'Safety',
+      'Research': 'Research',
+      'Funding': 'Finance',
+      'Infrastructure': 'Infrastructure'
+    };
+    
+    for (const [pattern, category] of Object.entries(namePatterns)) {
+      if (topic.name.includes(pattern)) {
+        return category;
+      }
+    }
+    
+    // Default fallback
+    return 'Uncategorized';
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,9 +180,9 @@ export const useTopics = () => {
           .from('topics')
           .update({
             name: data.name,
-            category: data.category,
             description: data.description,
-            updated_at: new Date()
+            // Don't include category as it's not in the database schema
+            updated_at: new Date().toISOString() // Convert Date to string
           })
           .eq('id', editingTopic.id);
 
@@ -134,7 +191,12 @@ export const useTopics = () => {
         // Update local state
         setTopics(topics.map(topic => 
           topic.id === editingTopic.id 
-            ? { ...topic, ...data } 
+            ? { 
+                ...topic, 
+                ...data,
+                // Make sure the category is preserved in the local state
+                category: data.category || topic.category 
+              } 
             : topic
         ));
         
@@ -144,16 +206,17 @@ export const useTopics = () => {
         });
       } else {
         // Add new topic to Supabase
-        // In a real app with authentication, we would set user_id to the current user's ID
-        // For now, let's use a placeholder or fetch from locals/session storage
+        // We need to include only the fields expected by the Supabase schema
         const { data: newTopicData, error } = await supabase
           .from('topics')
           .insert({
             name: data.name,
-            category: data.category,
             description: data.description,
             is_public: false,
-            keywords: [] // Empty array as default
+            keywords: [], // Default empty array
+            // user_id will be handled by RLS or with auth context in a real app
+            // For now, use a default or anonymous user ID if needed
+            user_id: '00000000-0000-0000-0000-000000000000' // Use a default user ID
           })
           .select();
 
@@ -163,10 +226,14 @@ export const useTopics = () => {
           const newTopic: Topic = {
             id: newTopicData[0].id,
             name: data.name,
-            category: data.category,
-            description: data.description,
+            category: data.category || deriveCategoryFromTopic({ 
+              name: data.name, 
+              description: data.description 
+            }),
+            description: data.description || '',
             following: false,
-            is_public: false
+            is_public: false,
+            keywords: []
           };
           
           setTopics([...topics, newTopic]);
@@ -192,16 +259,16 @@ export const useTopics = () => {
     ? topics 
     : topics.filter(topic => 
         topic.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        topic.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (topic.category && topic.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
         topic.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
   // Group topics by category
-  const categories = Array.from(new Set(filteredTopics.map(topic => topic.category)));
+  const categories = Array.from(new Set(filteredTopics.map(topic => topic.category || 'Uncategorized')));
   
   const categorizedTopics = categories.map(category => ({
     name: category,
-    topics: filteredTopics.filter(topic => topic.category === category),
+    topics: filteredTopics.filter(topic => (topic.category || 'Uncategorized') === category),
   }));
 
   // Initialize selected topics on component mount
