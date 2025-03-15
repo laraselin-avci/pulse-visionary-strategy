@@ -20,11 +20,12 @@ const Report = () => {
   const { topics, isLoading: topicsLoading } = useTopicData();
   const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<AlertPriority[]>(['urgent', 'high', 'medium', 'low', 'info']);
+  const [showAllData, setShowAllData] = useState(true); // Default to showing all data
 
   // Fetch insights from the database
   const { insights, filteredInsights, isLoading: insightsLoading } = useRegulatoryInsights(
     topics,
-    selectedTopicIds, 
+    showAllData ? [] : selectedTopicIds, // If showAllData is true, pass empty array to show all
     priorityFilter
   );
 
@@ -69,6 +70,14 @@ const Report = () => {
     setPriorityFilter(priorities);
   };
 
+  // Toggle between showing all data or filtered data
+  const toggleDataView = () => {
+    setShowAllData(prev => !prev);
+  };
+
+  // The data to display in the insights table
+  const displayedInsights = showAllData ? insights : filteredInsights;
+
   return (
     <MainLayout>
       <div className="mb-6">
@@ -95,9 +104,11 @@ const Report = () => {
               selectedTopics={selectedTopicIds}
               handleTopicClick={handleTopicToggle}
               insights={insights}
-              filteredInsights={filteredInsights}
+              filteredInsights={displayedInsights}
               priorityFilter={priorityFilter}
               onPriorityFilterChange={handlePriorityFilterChange}
+              showAllData={showAllData}
+              onToggleDataView={toggleDataView}
             />
           )}
         </ResizablePanel>

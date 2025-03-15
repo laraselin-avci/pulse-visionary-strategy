@@ -4,17 +4,17 @@ import { RegulatoryInsight, priorityOrder } from '@/types/regulatory';
 import { AlertPriority } from '@/components/ui/alert-card';
 
 export const fetchInsightsFromDatabase = async () => {
-  // Fetch both regular topic analyses and regulatory insights
+  // Fetch all topic analyses without filtering by content_type
   const { data, error } = await supabase
     .from('topic_analyses')
-    .select('*')
-    .eq('content_type', 'regulatory_insight');
+    .select('*');
 
   if (error) {
-    console.error('Error fetching regulatory insights:', error);
+    console.error('Error fetching data from topic_analyses:', error);
     throw error;
   }
 
+  console.log('Data fetched from topic_analyses:', data);
   return data || [];
 };
 
