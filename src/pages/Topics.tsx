@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ interface Topic {
   id: string;
   name: string;
   category: string;
+  description: string;
   following: boolean;
 }
 
@@ -20,7 +22,7 @@ const Topics: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
-  // Mock data
+  // Mock data with descriptions
   const categories = [
     'Energy & Environment',
     'Digital & Technology',
@@ -31,22 +33,22 @@ const Topics: React.FC = () => {
   ];
 
   const allTopics: Topic[] = [
-    { id: '1', name: 'Solar Subsidies', category: 'Energy & Environment', following: true },
-    { id: '2', name: 'Wind Energy Regulations', category: 'Energy & Environment', following: true },
-    { id: '3', name: 'Carbon Pricing', category: 'Energy & Environment', following: true },
-    { id: '4', name: 'Energy Storage Incentives', category: 'Energy & Environment', following: false },
-    { id: '5', name: 'Energy Taxation', category: 'Energy & Environment', following: true },
-    { id: '6', name: 'Digital Infrastructure', category: 'Digital & Technology', following: true },
-    { id: '7', name: 'AI Regulation', category: 'Digital & Technology', following: true },
-    { id: '8', name: 'Data Privacy Laws', category: 'Digital & Technology', following: false },
-    { id: '9', name: 'Digital Marketplace Rules', category: 'Digital & Technology', following: false },
-    { id: '10', name: 'Cybersecurity Standards', category: 'Digital & Technology', following: false },
-    { id: '11', name: 'Healthcare Reform', category: 'Healthcare', following: false },
-    { id: '12', name: 'Pharmaceutical Pricing', category: 'Healthcare', following: false },
-    { id: '13', name: 'Banking Regulations', category: 'Finance & Economy', following: false },
-    { id: '14', name: 'Tax Reform', category: 'Finance & Economy', following: false },
-    { id: '15', name: 'Electric Vehicle Incentives', category: 'Transportation', following: false },
-    { id: '16', name: 'Minimum Wage', category: 'Labor & Social', following: false },
+    { id: '1', name: 'Solar Subsidies', category: 'Energy & Environment', description: 'Government incentives and financial support for solar energy development and adoption.', following: true },
+    { id: '2', name: 'Wind Energy Regulations', category: 'Energy & Environment', description: 'Laws and policies governing the development and operation of wind energy facilities.', following: true },
+    { id: '3', name: 'Carbon Pricing', category: 'Energy & Environment', description: 'Mechanisms that put a price on carbon dioxide emissions to reduce greenhouse gas emissions.', following: true },
+    { id: '4', name: 'Energy Storage Incentives', category: 'Energy & Environment', description: 'Governmental support for development and deployment of energy storage technologies.', following: false },
+    { id: '5', name: 'Energy Taxation', category: 'Energy & Environment', description: 'Tax policies affecting energy production, distribution, and consumption.', following: true },
+    { id: '6', name: 'Digital Infrastructure', category: 'Digital & Technology', description: 'Policies regarding broadband development, connectivity, and digital access initiatives.', following: true },
+    { id: '7', name: 'AI Regulation', category: 'Digital & Technology', description: 'Emerging rules governing artificial intelligence development and application.', following: true },
+    { id: '8', name: 'Data Privacy Laws', category: 'Digital & Technology', description: 'Legislation concerning personal data protection and privacy rights.', following: false },
+    { id: '9', name: 'Digital Marketplace Rules', category: 'Digital & Technology', description: 'Regulations affecting online marketplaces, e-commerce, and digital trade.', following: false },
+    { id: '10', name: 'Cybersecurity Standards', category: 'Digital & Technology', description: 'Security requirements and protocols for digital systems and networks.', following: false },
+    { id: '11', name: 'Healthcare Reform', category: 'Healthcare', description: 'Major legislative changes to healthcare delivery and insurance systems.', following: false },
+    { id: '12', name: 'Pharmaceutical Pricing', category: 'Healthcare', description: 'Government policies affecting drug prices and pharmaceutical market dynamics.', following: false },
+    { id: '13', name: 'Banking Regulations', category: 'Finance & Economy', description: 'Rules governing banking operations, capital requirements, and financial services.', following: false },
+    { id: '14', name: 'Tax Reform', category: 'Finance & Economy', description: 'Major changes to tax codes affecting individuals and businesses.', following: false },
+    { id: '15', name: 'Electric Vehicle Incentives', category: 'Transportation', description: 'Government programs encouraging electric vehicle adoption and infrastructure.', following: false },
+    { id: '16', name: 'Minimum Wage', category: 'Labor & Social', description: 'Policies setting wage floors and affecting employee compensation.', following: false },
   ];
 
   const [topics, setTopics] = useState<Topic[]>(allTopics);
@@ -165,32 +167,37 @@ const Topics: React.FC = () => {
           category.topics.length > 0 && (
             <div key={category.name} className="bg-white rounded-lg border border-politix-gray p-4 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">{category.name}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {category.topics.map(topic => {
                   const isSelected = selectedTopics.includes(topic.id);
                   
                   return (
                     <div 
                       key={topic.id}
-                      onClick={() => handleTopicSelect(topic.id)}
                       className={cn(
-                        "flex items-center justify-between p-3 rounded-md border cursor-pointer transition-all duration-200",
+                        "flex flex-col p-4 rounded-md border transition-all duration-200",
                         isSelected 
                           ? "border-blue-500 bg-blue-50 shadow-sm" 
                           : "border-gray-200 hover:border-blue-300 hover:bg-blue-50/50"
                       )}
                     >
-                      <span className="font-medium text-gray-800">{topic.name}</span>
-                      <div className={cn(
-                        "w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200",
-                        isSelected ? "bg-blue-600" : "bg-gray-200"
-                      )}>
-                        {isSelected ? (
-                          <Check className="h-4 w-4 text-white" />
-                        ) : (
-                          <Plus className="h-4 w-4 text-gray-500" />
-                        )}
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-gray-800">{topic.name}</span>
+                        <button
+                          onClick={() => handleTopicSelect(topic.id)}
+                          className={cn(
+                            "w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200",
+                            isSelected ? "bg-blue-600" : "bg-gray-200"
+                          )}
+                        >
+                          {isSelected ? (
+                            <Check className="h-4 w-4 text-white" />
+                          ) : (
+                            <Plus className="h-4 w-4 text-gray-500" />
+                          )}
+                        </button>
                       </div>
+                      <p className="text-sm text-gray-600 mt-2">{topic.description}</p>
                     </div>
                   );
                 })}

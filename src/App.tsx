@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Index from "./pages/Index";
 import Topics from "./pages/Topics";
+import Insights from "./pages/Insights";
+import LiveUpdates from "./pages/LiveUpdates";
 import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 
@@ -32,6 +34,8 @@ const App = () => {
           <Routes>
             <Route path="/dashboard" element={<Index />} />
             <Route path="/topics" element={<Topics />} />
+            <Route path="/insights" element={<Insights />} />
+            <Route path="/live-updates" element={<LiveUpdates />} />
             <Route path="/onboarding" element={<Onboarding onWebsiteSubmit={() => setHasSubmittedWebsite(true)} />} />
             <Route path="/" element={
               hasSubmittedWebsite ? <Navigate to="/dashboard" replace /> : <Navigate to="/onboarding" replace />

@@ -2,12 +2,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  BarChart, 
   Layout, 
   FileText, 
-  Settings,
-  AlertTriangle,
-  TrendingUp
+  TrendingUp,
+  Radio
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -25,19 +23,17 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { name: 'Dashboard', path: '/dashboard', icon: Layout },
-  { name: 'Alerts', path: '/alerts', icon: AlertTriangle },
-  { name: 'Topics', path: '/topics', icon: FileText },
   { name: 'Insights', path: '/insights', icon: TrendingUp },
-  { name: 'Analytics', path: '/analytics', icon: BarChart },
-  { name: 'Settings', path: '/settings', icon: Settings },
+  { name: 'Topics', path: '/topics', icon: FileText },
+  { name: 'Live Updates', path: '/live-updates', icon: Radio },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
   
   const sidebarClasses = cn(
-    "fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out",
-    "lg:translate-x-0 lg:static lg:w-64 lg:shrink-0 lg:shadow-none",
+    "fixed inset-y-0 left-0 z-40 w-56 bg-white shadow-lg transform transition-transform duration-300 ease-in-out",
+    "lg:translate-x-0 lg:static lg:w-56 lg:shrink-0 lg:shadow-none",
     isOpen ? "translate-x-0" : "-translate-x-full"
   );
   
