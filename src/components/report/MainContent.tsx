@@ -27,7 +27,7 @@ export const MainContent: React.FC<MainContentProps> = ({
       />
       
       {/* Insights Table */}
-      <div className="mt-8 flex-1">
+      <div className="mt-4">
         <h2 className="text-lg font-semibold mb-4">Regulatory Insights</h2>
         <InsightsTable insights={filteredInsights} />
       </div>
