@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  Layout, 
   FileText, 
   TrendingUp,
-  Radio
+  Radio,
+  FileBarChart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -22,8 +21,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Dashboard', path: '/dashboard', icon: Layout },
-  { name: 'Insights', path: '/insights', icon: TrendingUp },
+  { name: 'Report', path: '/report', icon: FileBarChart },
   { name: 'Topics', path: '/topics', icon: FileText },
   { name: 'Live Updates', path: '/live-updates', icon: Radio },
 ];

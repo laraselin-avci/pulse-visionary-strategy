@@ -5,9 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Index from "./pages/Index";
+import Report from "./pages/Report";
 import Topics from "./pages/Topics";
-import Insights from "./pages/Insights";
 import LiveUpdates from "./pages/LiveUpdates";
 import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
@@ -32,13 +31,12 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/dashboard" element={<Index />} />
+            <Route path="/report" element={<Report />} />
             <Route path="/topics" element={<Topics />} />
-            <Route path="/insights" element={<Insights />} />
             <Route path="/live-updates" element={<LiveUpdates />} />
             <Route path="/onboarding" element={<Onboarding onWebsiteSubmit={() => setHasSubmittedWebsite(true)} />} />
             <Route path="/" element={
-              hasSubmittedWebsite ? <Navigate to="/dashboard" replace /> : <Navigate to="/onboarding" replace />
+              hasSubmittedWebsite ? <Navigate to="/report" replace /> : <Navigate to="/onboarding" replace />
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={
