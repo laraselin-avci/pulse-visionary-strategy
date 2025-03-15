@@ -2,9 +2,10 @@
 import React from 'react';
 import { TopicFilter } from '@/components/dashboard/TopicFilter';
 import { InsightsTable } from '@/components/dashboard/InsightsTable';
+import { Topic } from '@/types/topics';
 
 interface MainContentProps {
-  topics: any[];
+  topics: Topic[];
   selectedTopics: string[];
   handleTopicClick: (topicId: string) => void;
   insights: any[];
