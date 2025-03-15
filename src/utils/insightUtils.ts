@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { RegulatoryInsight, priorityOrder } from '@/types/regulatory';
 import { AlertPriority } from '@/components/ui/alert-card';
@@ -19,21 +20,32 @@ export const fetchInsightsFromDatabase = async () => {
 
 export const formatDatabaseInsights = (data: any[]): RegulatoryInsight[] => {
   return data.map(item => {
-    const analysisData = item.analysis_data as any;
-    const relevantExtracts = item.relevant_extracts as any;
+    const analysisData = item.analysis_data;
+    const relevantExtracts = item.relevant_extracts;
     
     // Map the topic from the array to a string (taking the first topic if there's more than one)
     const topic = item.topics && item.topics.length > 0 ? item.topics[0] : '';
     
     return {
       id: item.id,
-      title: item.summary || analysisData?.title || '',
-      description: relevantExtracts?.description || analysisData?.description || '',
-      source: relevantExtracts?.source || analysisData?.source || '',
+      title: item.summary || (analysisData?.title || ''),
+      description: (relevantExtracts?.description || analysisData?.description || ''),
+      source: (relevantExtracts?.source || analysisData?.source || ''),
       priority: (relevantExtracts?.priority || analysisData?.priority || 'medium') as AlertPriority,
-      date: relevantExtracts?.date || analysisData?.date || new Date(item.analysis_date).toLocaleString(),
+      date: (relevantExtracts?.date || analysisData?.date || new Date(item.analysis_date).toLocaleString()),
       topic: topic,
-      topicId: item.topic_id || '' // This might be null based on our database
+      topicId: item.topic_id || '',
+      // Include all additional fields
+      analysisData: analysisData,
+      relevantExtracts: relevantExtracts,
+      keywords: item.keywords,
+      sentiment: item.sentiment,
+      summary: item.summary,
+      topics: item.topics,
+      contentId: item.content_id,
+      contentType: item.content_type,
+      analysisDate: item.analysis_date,
+      analyzedAt: item.analyzed_at
     };
   });
 };

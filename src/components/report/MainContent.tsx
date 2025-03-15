@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TopicFilter } from '@/components/dashboard/TopicFilter';
 import { InsightsTable } from '@/components/dashboard/InsightsTable';
@@ -100,7 +101,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <InsightsTable insights={filteredInsights} />
+        <InsightsTable insights={filteredInsights} showFullData={true} />
       </div>
     </div>
   );

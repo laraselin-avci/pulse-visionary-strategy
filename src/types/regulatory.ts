@@ -10,6 +10,17 @@ export interface RegulatoryInsight {
   date: string;
   topic: string;
   topicId: string;
+  // New fields from topic_analyses
+  analysisData?: any;
+  relevantExtracts?: any;
+  keywords?: string[];
+  sentiment?: string;
+  summary?: string;
+  topics?: string[];
+  contentId?: string;
+  contentType?: string;
+  analysisDate?: string;
+  analyzedAt?: string;
 }
 
 export const priorityOrder: Record<AlertPriority, number> = {
