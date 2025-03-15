@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCards } from '@/components/dashboard/StatCards';
 import { TopicFilter } from '@/components/dashboard/TopicFilter';
-import { AlertsList } from '@/components/dashboard/AlertsList';
+import { InsightsList } from '@/components/dashboard/AlertsList';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -23,9 +23,9 @@ type SearchFormValues = z.infer<typeof searchSchema>;
 const Report = () => {
   const { 
     topics, 
-    alerts, 
+    alerts: insights, 
     selectedTopics, 
-    filteredAlerts, 
+    filteredAlerts: filteredInsights, 
     handleTopicClick 
   } = useDashboardData();
   
@@ -99,10 +99,10 @@ const Report = () => {
         onTopicClick={handleTopicClick} 
       />
       
-      {/* Insights/Alerts */}
+      {/* Insights */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold mb-4">Regulatory Alerts</h2>
-        <AlertsList alerts={filteredAlerts} showHeader={false} />
+        <h2 className="text-lg font-semibold mb-4">Regulatory Insights</h2>
+        <InsightsList insights={filteredInsights} showHeader={false} />
       </div>
     </MainLayout>
   );
