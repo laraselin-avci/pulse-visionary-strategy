@@ -7,12 +7,14 @@ import CategorySection from '@/components/topics/CategorySection';
 import TopicForm from '@/components/topics/TopicForm';
 import { useTopics } from '@/hooks/useTopics';
 import { Plus } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Topics: React.FC = () => {
   const {
     searchQuery,
     selectedTopics,
     categorizedTopics,
+    isLoading,
     handleSearch,
     handleTopicSelect,
     handleSaveChanges,
@@ -59,18 +61,33 @@ const Topics: React.FC = () => {
         </Button>
       </div>
 
-      <div className="space-y-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-        {categorizedTopics.map((category) => (
-          <CategorySection
-            key={category.name}
-            name={category.name}
-            topics={category.topics}
-            selectedTopics={selectedTopics}
-            onTopicSelect={handleTopicSelect}
-            onEditTopic={handleEditTopic}
-          />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="space-y-8">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="p-4 border rounded-lg">
+              <Skeleton className="h-6 w-40 mb-4" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((j) => (
+                  <Skeleton key={j} className="h-32 w-full rounded-md" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          {categorizedTopics.map((category) => (
+            <CategorySection
+              key={category.name}
+              name={category.name}
+              topics={category.topics}
+              selectedTopics={selectedTopics}
+              onTopicSelect={handleTopicSelect}
+              onEditTopic={handleEditTopic}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Topic Form Dialog */}
       <TopicForm 

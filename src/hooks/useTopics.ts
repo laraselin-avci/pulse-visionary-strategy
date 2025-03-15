@@ -1,34 +1,66 @@
-
 import { useState, useEffect } from 'react';
 import { Topic, EditableTopicData } from '@/types/topics';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { allTopics, categories } from '@/data/topics';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useTopics = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-  const [topics, setTopics] = useState<Topic[]>(allTopics);
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Dialog state for adding/editing topics
   const [isTopicFormOpen, setIsTopicFormOpen] = useState(false);
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 
+  // Fetch topics from Supabase
+  const fetchTopics = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch topics from Supabase
+      const { data, error } = await supabase
+        .from('topics')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching topics:', error);
+        toast({
+          title: "Error fetching topics",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Convert Supabase data to Topic type
+      const formattedTopics: Topic[] = data.map((topic: any) => ({
+        id: topic.id,
+        name: topic.name,
+        category: topic.category || 'Uncategorized', // Default category if none exists
+        description: topic.description || '',
+        following: false, // Will be updated when we fetch selected topics
+        is_public: topic.is_public
+      }));
+
+      setTopics(formattedTopics);
+    } catch (error) {
+      console.error('Error fetching topics:', error);
+      toast({
+        title: "Error fetching topics",
+        description: "Failed to fetch topics. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-    
-    if (query.trim() === '') {
-      setTopics(allTopics);
-    } else {
-      const filtered = allTopics.filter(topic => 
-        topic.name.toLowerCase().includes(query) || 
-        topic.category.toLowerCase().includes(query)
-      );
-      setTopics(filtered);
-    }
   };
 
   const handleTopicSelect = (topicId: string) => {
@@ -47,17 +79,27 @@ export const useTopics = () => {
     }
   };
 
-  const handleSaveChanges = () => {
-    // Save the selected topics (in a real app this would go to a database)
-    localStorage.setItem('selectedTopics', JSON.stringify(selectedTopics));
-    
-    toast({
-      title: "Topics updated",
-      description: `You are now following ${selectedTopics.length} topics.`,
-    });
-    
-    // Navigate to dashboard after saving
-    navigate('/');
+  const handleSaveChanges = async () => {
+    try {
+      // In a real app with authentication, we would save topic subscriptions to the database
+      // For now, we'll just save to localStorage
+      localStorage.setItem('selectedTopics', JSON.stringify(selectedTopics));
+      
+      toast({
+        title: "Topics updated",
+        description: `You are now following ${selectedTopics.length} topics.`,
+      });
+      
+      // Navigate to dashboard after saving
+      navigate('/');
+    } catch (error) {
+      console.error('Error saving topic selections:', error);
+      toast({
+        title: "Error saving topics",
+        description: "Failed to save your topic selections. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Add a new topic
@@ -73,55 +115,99 @@ export const useTopics = () => {
   };
 
   // Submit the topic form (for both add and edit)
-  const handleTopicFormSubmit = (data: EditableTopicData) => {
-    if (editingTopic) {
-      // Update existing topic
-      const updatedTopics = topics.map(topic => 
-        topic.id === editingTopic.id 
-          ? { ...topic, ...data } 
-          : topic
-      );
-      setTopics(updatedTopics);
-      
-      // Update allTopics reference as well to maintain consistency
-      const allTopicsIndex = allTopics.findIndex(t => t.id === editingTopic.id);
-      if (allTopicsIndex !== -1) {
-        allTopics[allTopicsIndex] = { ...allTopics[allTopicsIndex], ...data };
+  const handleTopicFormSubmit = async (data: EditableTopicData) => {
+    try {
+      if (editingTopic) {
+        // Update existing topic in Supabase
+        const { error } = await supabase
+          .from('topics')
+          .update({
+            name: data.name,
+            category: data.category,
+            description: data.description,
+            updated_at: new Date()
+          })
+          .eq('id', editingTopic.id);
+
+        if (error) throw error;
+        
+        // Update local state
+        setTopics(topics.map(topic => 
+          topic.id === editingTopic.id 
+            ? { ...topic, ...data } 
+            : topic
+        ));
+        
+        toast({
+          title: "Topic updated",
+          description: `The topic "${data.name}" has been updated.`,
+        });
+      } else {
+        // Add new topic to Supabase
+        // In a real app with authentication, we would set user_id to the current user's ID
+        // For now, let's use a placeholder or fetch from locals/session storage
+        const { data: newTopicData, error } = await supabase
+          .from('topics')
+          .insert({
+            name: data.name,
+            category: data.category,
+            description: data.description,
+            is_public: false,
+            keywords: [] // Empty array as default
+          })
+          .select();
+
+        if (error) throw error;
+        
+        if (newTopicData && newTopicData.length > 0) {
+          const newTopic: Topic = {
+            id: newTopicData[0].id,
+            name: data.name,
+            category: data.category,
+            description: data.description,
+            following: false,
+            is_public: false
+          };
+          
+          setTopics([...topics, newTopic]);
+          
+          toast({
+            title: "Topic added",
+            description: `The topic "${data.name}" has been added.`,
+          });
+        }
       }
-      
+    } catch (error: any) {
+      console.error('Error saving topic:', error);
       toast({
-        title: "Topic updated",
-        description: `The topic "${data.name}" has been updated.`,
-      });
-    } else {
-      // Add new topic
-      const newTopic: Topic = {
-        id: Date.now().toString(), // Generate a simple unique ID
-        name: data.name,
-        category: data.category,
-        description: data.description,
-        following: false
-      };
-      
-      setTopics([...topics, newTopic]);
-      
-      // Add to allTopics as well
-      allTopics.push(newTopic);
-      
-      toast({
-        title: "Topic added",
-        description: `The topic "${data.name}" has been added.`,
+        title: "Error saving topic",
+        description: error.message || "Failed to save topic. Please try again.",
+        variant: "destructive",
       });
     }
   };
 
+  // Filter topics based on search query
+  const filteredTopics = searchQuery.trim() === '' 
+    ? topics 
+    : topics.filter(topic => 
+        topic.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        topic.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        topic.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+  // Group topics by category
+  const categories = Array.from(new Set(filteredTopics.map(topic => topic.category)));
+  
   const categorizedTopics = categories.map(category => ({
     name: category,
-    topics: topics.filter(topic => topic.category === category),
+    topics: filteredTopics.filter(topic => topic.category === category),
   }));
 
   // Initialize selected topics on component mount
   useEffect(() => {
+    fetchTopics();
+    
     // First check if there are preselected topics from onboarding
     const preselectedTopics = localStorage.getItem('preselectedTopics');
     
@@ -135,15 +221,10 @@ export const useTopics = () => {
         description: "We've selected topics based on your website. You can modify this selection.",
       });
     } else {
-      // Otherwise, check for previously saved topics or use default following topics
+      // Otherwise, check for previously saved topics
       const savedTopics = localStorage.getItem('selectedTopics');
       if (savedTopics) {
         setSelectedTopics(JSON.parse(savedTopics));
-      } else {
-        const initialSelected = allTopics
-          .filter(topic => topic.following)
-          .map(topic => topic.id);
-        setSelectedTopics(initialSelected);
       }
     }
   }, []);
@@ -152,7 +233,8 @@ export const useTopics = () => {
     searchQuery,
     selectedTopics,
     categorizedTopics,
-    topics,
+    topics: filteredTopics,
+    isLoading,
     handleSearch,
     handleTopicSelect,
     handleSaveChanges,
