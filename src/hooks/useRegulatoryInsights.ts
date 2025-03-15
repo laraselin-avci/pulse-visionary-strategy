@@ -64,7 +64,71 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
             };
           });
           
-          setInsights(formattedInsights);
+          // Add mock OpenAI regulatory insights
+          const openAIMockInsights: RegulatoryInsight[] = [
+            {
+              id: 'openai-1',
+              title: 'EU Commission Investigating OpenAI for Data Privacy Concerns',
+              description: 'The European Commission has launched a formal investigation into OpenAI regarding potential GDPR violations related to training data acquisition and privacy safeguards in their large language models.',
+              source: 'European Commission Press Release',
+              priority: 'high',
+              date: 'May 15, 2023',
+              topic: 'AI Regulation',
+              topicId: selectedTopicIds.find(id => formattedInsights.find(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+            },
+            {
+              id: 'openai-2',
+              title: 'New Licensing Requirements for LLM Providers',
+              description: 'Parliament has proposed new licensing requirements for providers of large language models like OpenAI. The proposal includes mandatory transparency reports and algorithmic auditing.',
+              source: 'Parliamentary Committee on AI Safety',
+              priority: 'urgent',
+              date: 'June 2, 2023',
+              topic: 'AI Regulation',
+              topicId: selectedTopicIds.find(id => formattedInsights.find(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+            },
+            {
+              id: 'openai-3',
+              title: 'OpenAI Required to Establish European HQ for Regulatory Compliance',
+              description: 'New regulatory framework requires AI companies including OpenAI to establish European headquarters for closer oversight and faster response to compliance issues.',
+              source: 'European Digital Authority',
+              priority: 'medium',
+              date: 'May 28, 2023',
+              topic: 'AI Regulation',
+              topicId: selectedTopicIds.find(id => formattedInsights.find(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+            },
+            {
+              id: 'openai-4',
+              title: 'Public Sector Guidelines for Using OpenAI Tools Released',
+              description: 'The Ministry of Digital Affairs has published guidelines for public sector organizations on responsible use of OpenAI and similar AI tools. The guidelines include security protocols and content guidelines.',
+              source: 'Ministry of Digital Affairs',
+              priority: 'medium',
+              date: 'June 10, 2023',
+              topic: 'Digital Infrastructure',
+              topicId: selectedTopicIds.find(id => formattedInsights.find(insight => insight.topicId === id && insight.topic === 'Digital Infrastructure'))
+            },
+            {
+              id: 'openai-5',
+              title: 'Industry Standards Body Created for AI Model Evaluation',
+              description: 'A new industry standards body has been established to create evaluation metrics for AI systems like those from OpenAI. Participation will be mandatory for models deployed in critical sectors.',
+              source: 'Standards Authority',
+              priority: 'low',
+              date: 'June 15, 2023',
+              topic: 'AI Regulation',
+              topicId: selectedTopicIds.find(id => formattedInsights.find(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+            }
+          ];
+          
+          // Only add OpenAI insights if an AI Regulation topic is selected or if no topics are selected
+          let combinedInsights = [...formattedInsights];
+          
+          if (selectedTopicIds.length === 0 || selectedTopicIds.some(id => 
+              formattedInsights.some(insight => insight.topicId === id && 
+                (insight.topic === 'AI Regulation' || insight.topic === 'Digital Infrastructure')))) {
+            combinedInsights = [...formattedInsights, ...openAIMockInsights.filter(insight => 
+              !selectedTopicIds.length || selectedTopicIds.includes(insight.topicId || ''))];
+          }
+          
+          setInsights(combinedInsights);
         }
       } catch (error: any) {
         console.error('Error fetching regulatory insights:', error);
