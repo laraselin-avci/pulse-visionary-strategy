@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCards } from '@/components/dashboard/StatCards';
 import { TopicFilter } from '@/components/dashboard/TopicFilter';
-import { InsightsList } from '@/components/dashboard/AlertsList';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -19,6 +18,15 @@ import {
   ResizablePanel,
   ResizableHandle
 } from '@/components/ui/resizable';
+import { InsightsTable } from '@/components/dashboard/InsightsTable';
+import { 
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell
+} from '@/components/ui/table';
 
 const chatSchema = z.object({
   message: z.string().min(1, "Please enter a message")
@@ -100,7 +108,7 @@ const Report = () => {
       >
         {/* Left Panel - Topics and Insights */}
         <ResizablePanel defaultSize={50} minSize={30}>
-          <div className="h-full p-4 overflow-auto">
+          <div className="h-full p-4 overflow-auto flex flex-col">
             {/* Monitored Topics */}
             <TopicFilter 
               topics={topics} 
@@ -108,10 +116,10 @@ const Report = () => {
               onTopicClick={handleTopicClick} 
             />
             
-            {/* Insights */}
-            <div className="mt-8">
+            {/* Insights Table */}
+            <div className="mt-8 flex-1">
               <h2 className="text-lg font-semibold mb-4">Regulatory Insights</h2>
-              <InsightsList insights={filteredInsights} showHeader={false} />
+              <InsightsTable insights={filteredInsights} />
             </div>
           </div>
         </ResizablePanel>
@@ -127,8 +135,40 @@ const Report = () => {
               <p className="text-gray-600">Ask any question about regulations and get AI-powered insights.</p>
             </div>
             
-            {/* Chat History */}
-            <div className="flex-1 border rounded-md p-4 mb-4 overflow-y-auto">
+            {/* Chat Input at top */}
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="mb-4">
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="relative">
+                          <Textarea
+                            className="pl-4 pr-12 py-3 bg-white border-gray-200 focus-visible:ring-blue-500 min-h-[80px] resize-none"
+                            placeholder="What would you like to know about regulations?"
+                            {...field}
+                            rows={3}
+                          />
+                          <Button
+                            type="submit"
+                            size="sm"
+                            className="absolute bottom-2 right-2 h-8 w-8 p-0"
+                            disabled={!form.formState.isValid || isProcessing}
+                          >
+                            <SendIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+            
+            {/* Chat History below input */}
+            <div className="flex-1 border rounded-md p-4 overflow-y-auto">
               {chatHistory.length > 0 ? (
                 <>
                   {chatHistory.map((message) => (
@@ -167,50 +207,20 @@ const Report = () => {
               )}
             </div>
             
-            {/* Chat Input */}
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="relative">
-                          <Textarea
-                            className="pl-4 pr-12 py-3 bg-white border-gray-200 focus-visible:ring-blue-500 min-h-[80px] resize-none"
-                            placeholder="What would you like to know about regulations?"
-                            {...field}
-                            rows={3}
-                          />
-                          <Button
-                            type="submit"
-                            size="sm"
-                            className="absolute bottom-2 right-2 h-8 w-8 p-0"
-                            disabled={!form.formState.isValid || isProcessing}
-                          >
-                            <SendIcon className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                {chatHistory.length > 0 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      setChatHistory([]);
-                      form.reset({ message: '' });
-                    }}
-                  >
-                    Clear conversation
-                  </Button>
-                )}
-              </form>
-            </Form>
+            {/* Clear button */}
+            {chatHistory.length > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => {
+                  setChatHistory([]);
+                  form.reset({ message: '' });
+                }}
+              >
+                Clear conversation
+              </Button>
+            )}
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
