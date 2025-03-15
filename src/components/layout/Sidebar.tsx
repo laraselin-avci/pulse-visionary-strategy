@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -46,9 +47,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <aside className={sidebarClasses}>
         <div className="h-full flex flex-col border-r border-politix-gray">
           <div className="p-4 flex justify-center mb-4">
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-lg shadow-md">
-              <span className="font-bold text-lg">P</span>
-            </div>
+            <Link to="/onboarding">
+              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <span className="font-bold text-lg">P</span>
+              </div>
+            </Link>
           </div>
           
           <nav className="flex-1 px-2 space-y-1 overflow-y-auto">

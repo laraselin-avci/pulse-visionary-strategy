@@ -4,6 +4,7 @@ import { Bell, Settings, User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -30,14 +31,14 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <div className="flex items-center">
+        <Link to="/onboarding" className="flex items-center">
           <span className={cn(
             "font-bold text-xl tracking-tight text-politix-blue transition-all duration-300",
             "hover:text-politix-blue-light cursor-pointer"
           )}>
             Politix
           </span>
-        </div>
+        </Link>
       </div>
       
       <div className="flex items-center space-x-1">
