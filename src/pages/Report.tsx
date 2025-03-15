@@ -10,7 +10,8 @@ import { MainContent } from '@/components/report/MainContent';
 import { RegulatoryAssistant } from '@/components/report/RegulatoryAssistant';
 import { useTopicData } from '@/hooks/useTopicData';
 import { useToast } from '@/components/ui/use-toast';
-import { useRegulatoryInsights } from '@/hooks/useRegulatoryInsights';
+import { useRegulatoryInsights, priorityOrder } from '@/hooks/useRegulatoryInsights';
+import { AlertPriority } from '@/components/ui/alert-card';
 
 const Report = () => {
   const { toast } = useToast();
@@ -18,9 +19,10 @@ const Report = () => {
   // Fetch topics from the database
   const { topics, isLoading: topicsLoading } = useTopicData();
   const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
+  const [priorityFilter, setPriorityFilter] = useState<AlertPriority[]>(['urgent', 'high', 'medium', 'low']);
 
   // Fetch insights from the database
-  const { insights, filteredInsights, isLoading: insightsLoading } = useRegulatoryInsights(selectedTopicIds);
+  const { insights, filteredInsights, isLoading: insightsLoading } = useRegulatoryInsights(selectedTopicIds, priorityFilter);
 
   // Initialize selected topics from localStorage
   useEffect(() => {
@@ -58,6 +60,11 @@ const Report = () => {
     });
   };
 
+  // Handle priority filter change
+  const handlePriorityFilterChange = (priorities: AlertPriority[]) => {
+    setPriorityFilter(priorities);
+  };
+
   return (
     <MainLayout>
       <div className="mb-6">
@@ -85,6 +92,8 @@ const Report = () => {
               handleTopicClick={handleTopicToggle}
               insights={insights}
               filteredInsights={filteredInsights}
+              priorityFilter={priorityFilter}
+              onPriorityFilterChange={handlePriorityFilterChange}
             />
           )}
         </ResizablePanel>

@@ -19,6 +19,7 @@ export type Database = {
           id: string
           source_url: string | null
           title: string
+          xml_data: Json | null
         }
         Insert: {
           analysis_result?: Json | null
@@ -29,6 +30,7 @@ export type Database = {
           id?: string
           source_url?: string | null
           title: string
+          xml_data?: Json | null
         }
         Update: {
           analysis_result?: Json | null
@@ -39,6 +41,7 @@ export type Database = {
           id?: string
           source_url?: string | null
           title?: string
+          xml_data?: Json | null
         }
         Relationships: []
       }

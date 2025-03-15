@@ -36,9 +36,24 @@ export const TopicFilter: React.FC<TopicFilterProps> = ({
     <div className="mb-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900">Monitored Topics</h2>
-        <Button variant="outline" size="sm" onClick={handleManageTopics}>
-          Manage Topics
-        </Button>
+        <div className="flex gap-2">
+          {selectedTopics.length > 0 && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                // Clear all selected topics
+                localStorage.setItem('selectedTopics', JSON.stringify([]));
+                selectedTopics.forEach(id => onTopicClick(id));
+              }}
+            >
+              Clear Selection
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={handleManageTopics}>
+            Manage Topics
+          </Button>
+        </div>
       </div>
       <div className="bg-white p-4 rounded-lg border border-politix-gray">
         {publicTopics.length > 0 && (

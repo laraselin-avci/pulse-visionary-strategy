@@ -15,7 +15,17 @@ export interface RegulatoryInsight {
   topicId: string;
 }
 
-export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
+export const priorityOrder: Record<AlertPriority, number> = {
+  urgent: 1,
+  high: 2,
+  medium: 3,
+  low: 4
+};
+
+export const useRegulatoryInsights = (
+  selectedTopicIds: string[] = [],
+  priorityFilter: AlertPriority[] = ['urgent', 'high', 'medium', 'low']
+) => {
   const { toast } = useToast();
   const [insights, setInsights] = useState<RegulatoryInsight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -155,7 +165,18 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
             : openAIMockInsights;
           
           const combinedInsights: RegulatoryInsight[] = [...formattedInsights, ...filteredOpenAIInsights];
-          setInsights(combinedInsights);
+          
+          // Apply priority filter
+          const priorityFilteredInsights = combinedInsights.filter(insight => 
+            priorityFilter.includes(insight.priority)
+          );
+          
+          // Sort by priority
+          const sortedInsights = priorityFilteredInsights.sort((a, b) => 
+            priorityOrder[a.priority] - priorityOrder[b.priority]
+          );
+          
+          setInsights(sortedInsights);
         }
       } catch (error: any) {
         console.error('Error fetching regulatory insights:', error);
@@ -170,7 +191,7 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
     };
 
     fetchInsights();
-  }, [selectedTopicIds, toast]);
+  }, [selectedTopicIds, priorityFilter, toast]);
 
   return {
     insights,
