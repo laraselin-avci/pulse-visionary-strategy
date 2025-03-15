@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Check, Plus } from 'lucide-react';
+import { Check, Plus, PenLine } from 'lucide-react';
 
 interface TopicCardProps {
   id: string;
@@ -9,6 +9,7 @@ interface TopicCardProps {
   description: string;
   isSelected: boolean;
   onSelect: (topicId: string) => void;
+  onEdit?: () => void;
 }
 
 const TopicCard: React.FC<TopicCardProps> = ({
@@ -17,6 +18,7 @@ const TopicCard: React.FC<TopicCardProps> = ({
   description,
   isSelected,
   onSelect,
+  onEdit
 }) => {
   return (
     <div 
@@ -29,19 +31,33 @@ const TopicCard: React.FC<TopicCardProps> = ({
     >
       <div className="flex items-center justify-between">
         <span className="font-medium text-gray-800">{name}</span>
-        <button
-          onClick={() => onSelect(id)}
-          className={cn(
-            "w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200",
-            isSelected ? "bg-blue-600" : "bg-gray-200"
+        <div className="flex items-center space-x-2">
+          {onEdit && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              className="text-gray-500 hover:text-blue-600 transition-colors p-1 rounded-full hover:bg-blue-50"
+              title="Edit topic"
+            >
+              <PenLine className="h-4 w-4" />
+            </button>
           )}
-        >
-          {isSelected ? (
-            <Check className="h-4 w-4 text-white" />
-          ) : (
-            <Plus className="h-4 w-4 text-gray-500" />
-          )}
-        </button>
+          <button
+            onClick={() => onSelect(id)}
+            className={cn(
+              "w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200",
+              isSelected ? "bg-blue-600" : "bg-gray-200"
+            )}
+          >
+            {isSelected ? (
+              <Check className="h-4 w-4 text-white" />
+            ) : (
+              <Plus className="h-4 w-4 text-gray-500" />
+            )}
+          </button>
+        </div>
       </div>
       <p className="text-sm text-gray-600 mt-2">{description}</p>
     </div>

@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { Topic } from '@/types/topics';
+import { Topic, EditableTopicData } from '@/types/topics';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { allTopics, categories } from '@/data/topics';
@@ -9,8 +10,11 @@ export const useTopics = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-
   const [topics, setTopics] = useState<Topic[]>(allTopics);
+
+  // Dialog state for adding/editing topics
+  const [isTopicFormOpen, setIsTopicFormOpen] = useState(false);
+  const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value.toLowerCase();
@@ -56,6 +60,61 @@ export const useTopics = () => {
     navigate('/');
   };
 
+  // Add a new topic
+  const handleAddTopic = () => {
+    setEditingTopic(null);
+    setIsTopicFormOpen(true);
+  };
+
+  // Edit an existing topic
+  const handleEditTopic = (topic: Topic) => {
+    setEditingTopic(topic);
+    setIsTopicFormOpen(true);
+  };
+
+  // Submit the topic form (for both add and edit)
+  const handleTopicFormSubmit = (data: EditableTopicData) => {
+    if (editingTopic) {
+      // Update existing topic
+      const updatedTopics = topics.map(topic => 
+        topic.id === editingTopic.id 
+          ? { ...topic, ...data } 
+          : topic
+      );
+      setTopics(updatedTopics);
+      
+      // Update allTopics reference as well to maintain consistency
+      const allTopicsIndex = allTopics.findIndex(t => t.id === editingTopic.id);
+      if (allTopicsIndex !== -1) {
+        allTopics[allTopicsIndex] = { ...allTopics[allTopicsIndex], ...data };
+      }
+      
+      toast({
+        title: "Topic updated",
+        description: `The topic "${data.name}" has been updated.`,
+      });
+    } else {
+      // Add new topic
+      const newTopic: Topic = {
+        id: Date.now().toString(), // Generate a simple unique ID
+        name: data.name,
+        category: data.category,
+        description: data.description,
+        following: false
+      };
+      
+      setTopics([...topics, newTopic]);
+      
+      // Add to allTopics as well
+      allTopics.push(newTopic);
+      
+      toast({
+        title: "Topic added",
+        description: `The topic "${data.name}" has been added.`,
+      });
+    }
+  };
+
   const categorizedTopics = categories.map(category => ({
     name: category,
     topics: topics.filter(topic => topic.category === category),
@@ -93,8 +152,15 @@ export const useTopics = () => {
     searchQuery,
     selectedTopics,
     categorizedTopics,
+    topics,
     handleSearch,
     handleTopicSelect,
-    handleSaveChanges
+    handleSaveChanges,
+    handleAddTopic,
+    handleEditTopic,
+    handleTopicFormSubmit,
+    isTopicFormOpen,
+    setIsTopicFormOpen,
+    editingTopic
   };
 };

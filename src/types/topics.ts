@@ -6,3 +6,9 @@ export interface Topic {
   description: string;
   following: boolean;
 }
+
+export interface EditableTopicData {
+  name: string;
+  category: string;
+  description: string;
+}

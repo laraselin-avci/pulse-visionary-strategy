@@ -2,12 +2,15 @@
 import React from 'react';
 import TopicCard from './TopicCard';
 import { Topic } from '@/types/topics';
+import { Button } from '@/components/ui/button';
+import { PenLine } from 'lucide-react';
 
 interface CategorySectionProps {
   name: string;
   topics: Topic[];
   selectedTopics: string[];
   onTopicSelect: (topicId: string) => void;
+  onEditTopic?: (topic: Topic) => void;
 }
 
 const CategorySection: React.FC<CategorySectionProps> = ({
@@ -15,6 +18,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
   topics,
   selectedTopics,
   onTopicSelect,
+  onEditTopic
 }) => {
   if (topics.length === 0) return null;
 
@@ -30,6 +34,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
             description={topic.description}
             isSelected={selectedTopics.includes(topic.id)}
             onSelect={onTopicSelect}
+            onEdit={onEditTopic ? () => onEditTopic(topic) : undefined}
           />
         ))}
       </div>
