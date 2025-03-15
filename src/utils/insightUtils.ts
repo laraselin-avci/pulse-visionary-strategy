@@ -8,8 +8,7 @@ export const fetchInsightsFromDatabase = async () => {
   // Fetch both regular topic analyses and regulatory insights
   const { data, error } = await supabase
     .from('topic_analyses')
-    .select('*')
-    .eq('content_type', 'regulatory_insight');
+    .select('*');
 
   if (error) {
     console.error('Error fetching regulatory insights:', error);
@@ -24,26 +23,56 @@ export const formatDatabaseInsights = (data: any[]): RegulatoryInsight[] => {
   console.log('Formatting database insights, count:', data.length);
   
   return data.map(item => {
-    // Safely access nested properties
+    // Extract data primarily from analysis_data JSON
     const analysisData = item.analysis_data || {};
-    const relevantExtracts = item.relevant_extracts || {};
     
-    // Safely handle topics - it could be an array or a string
+    // Create a unique ID for each insight
+    const insightId = item.id || `insight-${Math.random().toString(36).substring(2, 11)}`;
+    
+    // Extract title from multiple possible sources
+    const title = analysisData.title || item.summary || 'Untitled Insight';
+    
+    // Extract description from multiple possible sources
+    const description = analysisData.description || 
+                        (item.relevant_extracts && item.relevant_extracts.description) || 
+                        item.summary || 
+                        'No description available';
+    
+    // Extract source information
+    const source = analysisData.source || 
+                  (item.relevant_extracts && item.relevant_extracts.source) || 
+                  'Internal Source';
+    
+    // Extract priority, defaulting to medium
+    const priority = (analysisData.priority || 
+                     (item.relevant_extracts && item.relevant_extracts.priority) || 
+                     'medium') as AlertPriority;
+    
+    // Extract date information
+    const date = analysisData.date || 
+                (item.relevant_extracts && item.relevant_extracts.date) || 
+                new Date(item.analysis_date).toLocaleString();
+    
+    // Handle topic data
     let topicValue = '';
-    if (item.topics && Array.isArray(item.topics) && item.topics.length > 0) {
-      topicValue = item.topics[0];
-    } else if (typeof item.topics === 'string') {
-      topicValue = item.topics;
+    if (analysisData.topic) {
+      topicValue = analysisData.topic;
+    } else if (item.topics) {
+      if (Array.isArray(item.topics) && item.topics.length > 0) {
+        topicValue = item.topics[0];
+      } else if (typeof item.topics === 'string') {
+        topicValue = item.topics;
+      }
     }
     
-    // Create a well-formed insight with default values for missing properties
+    // Create a well-formed insight
     const insight: RegulatoryInsight = {
-      id: item.id || '',
-      title: item.summary || analysisData.title || 'Untitled Insight',
-      description: relevantExtracts.description || analysisData.description || item.summary || '',
-      source: relevantExtracts.source || analysisData.source || 'Internal Source',
-      priority: (relevantExtracts.priority || analysisData.priority || 'medium') as AlertPriority,
-      date: relevantExtracts.date || analysisData.date || new Date(item.analysis_date).toLocaleString(),
+      id: insightId,
+      title: title,
+      description: description,
+      source: source,
+      priority: priority,
+      date: date,
       topic: topicValue,
       topicId: item.topic_id || ''
     };
