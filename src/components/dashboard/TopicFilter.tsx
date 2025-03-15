@@ -40,7 +40,7 @@ export const TopicFilter: React.FC<TopicFilterProps> = ({
           {topics.map((topic) => (
             <TopicBadge
               key={topic.id}
-              label={`${topic.name} (${topic.count})`}
+              label={topic.name}
               selected={selectedTopics.includes(topic.id)}
               onClick={() => onTopicClick(topic.id)}
             />

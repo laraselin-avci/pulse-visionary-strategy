@@ -44,33 +44,56 @@ export type Database = {
       }
       topic_analyses: {
         Row: {
+          analysis_data: Json | null
           analysis_date: string
+          analyzed_at: string | null
           content_id: string
           content_type: string
           id: string
           keywords: string[] | null
+          relevant_extracts: Json | null
           sentiment: string | null
+          summary: string | null
+          topic_id: string | null
           topics: string[]
         }
         Insert: {
+          analysis_data?: Json | null
           analysis_date?: string
+          analyzed_at?: string | null
           content_id: string
           content_type: string
           id?: string
           keywords?: string[] | null
+          relevant_extracts?: Json | null
           sentiment?: string | null
+          summary?: string | null
+          topic_id?: string | null
           topics: string[]
         }
         Update: {
+          analysis_data?: Json | null
           analysis_date?: string
+          analyzed_at?: string | null
           content_id?: string
           content_type?: string
           id?: string
           keywords?: string[] | null
+          relevant_extracts?: Json | null
           sentiment?: string | null
+          summary?: string | null
+          topic_id?: string | null
           topics?: string[]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "topic_analyses_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       topic_mentions: {
         Row: {
