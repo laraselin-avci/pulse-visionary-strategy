@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -19,7 +18,8 @@ export const priorityOrder: Record<AlertPriority, number> = {
   urgent: 1,
   high: 2,
   medium: 3,
-  low: 4
+  low: 4,
+  info: 5
 };
 
 export const useRegulatoryInsights = (
@@ -39,7 +39,6 @@ export const useRegulatoryInsights = (
           .select('*')
           .eq('content_type', 'regulatory_insight');
 
-        // Filter by selected topics if any are selected
         if (selectedTopicIds.length > 0) {
           query = query.in('topic_id', selectedTopicIds);
         }
@@ -57,7 +56,6 @@ export const useRegulatoryInsights = (
         }
 
         if (data) {
-          // Map database data to RegulatoryInsight format
           const formattedInsights: RegulatoryInsight[] = data.map(item => {
             const analysisData = item.analysis_data as any;
             const relevantExtracts = item.relevant_extracts as any;
@@ -73,8 +71,7 @@ export const useRegulatoryInsights = (
               topicId: item.topic_id || ''
             };
           });
-          
-          // Add OpenAI regulatory insights
+
           const openAIMockInsights: RegulatoryInsight[] = [
             {
               id: 'openai-1',
@@ -157,25 +154,22 @@ export const useRegulatoryInsights = (
               topicId: '10'
             }
           ];
-          
-          // Filter OpenAI insights to match selected topics if any are selected
+
           const filteredOpenAIInsights = selectedTopicIds.length > 0
             ? openAIMockInsights.filter(insight => 
                 selectedTopicIds.includes(insight.topicId))
             : openAIMockInsights;
-          
+
           const combinedInsights: RegulatoryInsight[] = [...formattedInsights, ...filteredOpenAIInsights];
-          
-          // Apply priority filter
+
           const priorityFilteredInsights = combinedInsights.filter(insight => 
             priorityFilter.includes(insight.priority)
           );
-          
-          // Sort by priority
+
           const sortedInsights = priorityFilteredInsights.sort((a, b) => 
             priorityOrder[a.priority] - priorityOrder[b.priority]
           );
-          
+
           setInsights(sortedInsights);
         }
       } catch (error: any) {
