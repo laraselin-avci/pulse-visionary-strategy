@@ -107,7 +107,7 @@ const Report = () => {
         className="min-h-[600px] rounded-lg border"
       >
         {/* Left Panel - Topics and Insights */}
-        <ResizablePanel defaultSize={75} minSize={50}>
+        <ResizablePanel defaultSize={67} minSize={50}>
           <div className="h-full p-4 overflow-auto flex flex-col">
             {/* Monitored Topics */}
             <TopicFilter 
@@ -128,7 +128,7 @@ const Report = () => {
         <ResizableHandle withHandle />
         
         {/* Right Panel - Chat Interface */}
-        <ResizablePanel defaultSize={25} minSize={25}>
+        <ResizablePanel defaultSize={33} minSize={25}>
           <div className="h-full flex flex-col p-4">
             <div className="mb-4">
               <h2 className="text-lg font-semibold">AI Regulatory Assistant</h2>
