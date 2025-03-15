@@ -12,7 +12,7 @@ export interface RegulatoryInsight {
   priority: AlertPriority;
   date: string;
   topic: string;
-  topicId?: string;
+  topicId: string; // Changed from optional to required to match usage
 }
 
 export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
@@ -48,7 +48,7 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
 
         if (data) {
           // Map database data to RegulatoryInsight format
-          const formattedInsights = data.map(item => {
+          const formattedInsights: RegulatoryInsight[] = data.map(item => {
             const analysisData = item.analysis_data as any;
             const relevantExtracts = item.relevant_extracts as any;
             
@@ -60,7 +60,7 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               priority: (relevantExtracts?.priority || analysisData?.priority || 'medium') as AlertPriority,
               date: relevantExtracts?.date || analysisData?.date || new Date(item.analysis_date).toLocaleString(),
               topic: item.topics && item.topics.length > 0 ? item.topics[0] : '',
-              topicId: item.topic_id
+              topicId: item.topic_id || '' // Ensure topicId is always a string
             };
           });
           
@@ -75,7 +75,7 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               date: 'May 15, 2023',
               topic: 'AI Regulation',
               topicId: selectedTopicIds.find(id => 
-                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation')) || ''
             },
             {
               id: 'openai-2',
@@ -86,7 +86,7 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               date: 'June 2, 2023',
               topic: 'AI Regulation',
               topicId: selectedTopicIds.find(id => 
-                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation')) || ''
             },
             {
               id: 'openai-3',
@@ -97,7 +97,7 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               date: 'May 28, 2023',
               topic: 'AI Regulation',
               topicId: selectedTopicIds.find(id => 
-                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation')) || ''
             },
             {
               id: 'openai-4',
@@ -108,7 +108,7 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               date: 'June 10, 2023',
               topic: 'Digital Infrastructure',
               topicId: selectedTopicIds.find(id => 
-                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'Digital Infrastructure'))
+                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'Digital Infrastructure')) || ''
             },
             {
               id: 'openai-5',
@@ -119,12 +119,12 @@ export const useRegulatoryInsights = (selectedTopicIds: string[] = []) => {
               date: 'June 15, 2023',
               topic: 'AI Regulation',
               topicId: selectedTopicIds.find(id => 
-                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation'))
+                formattedInsights.some(insight => insight.topicId === id && insight.topic === 'AI Regulation')) || ''
             }
           ];
           
           // Only add OpenAI insights if an AI Regulation topic is selected or if no topics are selected
-          let combinedInsights = [...formattedInsights];
+          let combinedInsights: RegulatoryInsight[] = [...formattedInsights];
           
           if (selectedTopicIds.length === 0 || selectedTopicIds.some(id => 
               formattedInsights.some(insight => insight.topicId === id && 
