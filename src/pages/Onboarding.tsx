@@ -61,8 +61,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onWebsiteSubmit }) => {
         description: "We've pre-selected topics based on your website content.",
       });
       
-      // Navigate to topics after successful analysis
-      navigate('/topics');
+      // Navigate to dashboard instead of topics
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error analyzing website:', error);
       toast({
