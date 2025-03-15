@@ -1,22 +1,16 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { useSidebarState } from '@/hooks/useSidebarState';
+import { MainContent } from './MainContent';
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-  
-  const closeSidebar = () => {
-    setSidebarOpen(false);
-  };
+  const { sidebarOpen, toggleSidebar, closeSidebar } = useSidebarState();
 
   return (
     <div className="min-h-screen flex flex-col bg-politix-gray-light">
@@ -24,12 +18,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       
       <div className="flex flex-1 overflow-hidden">
         <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
-        
-        <main className="flex-1 overflow-auto p-4 lg:p-8">
-          <div className="mx-auto max-w-7xl animate-fade-in">
-            {children}
-          </div>
-        </main>
+        <MainContent>{children}</MainContent>
       </div>
     </div>
   );
