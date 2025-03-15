@@ -75,7 +75,9 @@ const Report = () => {
                         />
                         <Button 
                           type="submit" 
-                          className="absolute right-1 top-1 bottom-1 bg-blue-600 hover:bg-blue-700 transition-colors"
+                          variant="default"
+                          size="sm"
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white"
                           disabled={!form.formState.isValid}
                         >
                           Search
