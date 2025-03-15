@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
-import { Filter, Database } from 'lucide-react';
+import { FilterIcon, DatabaseIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 
 interface MainContentProps {
@@ -86,7 +86,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
-                  <Filter className="h-4 w-4 mr-2" />
+                  <FilterIcon className="h-4 w-4 mr-2" />
                   Filter by Priority
                 </Button>
               </DropdownMenuTrigger>
