@@ -1,20 +1,21 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { RegulatoryInsight, priorityOrder } from '@/types/regulatory';
-import { getOpenAIMockInsights } from '@/data/mockOpenAIInsights';
 import { AlertPriority } from '@/components/ui/alert-card';
 
 export const fetchInsightsFromDatabase = async () => {
+  // Fetch both regular topic analyses and regulatory insights
   const { data, error } = await supabase
     .from('topic_analyses')
     .select('*')
     .eq('content_type', 'regulatory_insight');
 
   if (error) {
+    console.error('Error fetching regulatory insights:', error);
     throw error;
   }
 
-  return data;
+  return data || [];
 };
 
 export const formatDatabaseInsights = (data: any[]): RegulatoryInsight[] => {
@@ -35,27 +36,28 @@ export const formatDatabaseInsights = (data: any[]): RegulatoryInsight[] => {
   });
 };
 
-export const combineAndFilterInsights = (
-  dbInsights: RegulatoryInsight[],
+export const filterInsightsByTopicAndPriority = (
+  insights: RegulatoryInsight[],
   selectedTopicIds: string[],
   priorityFilter: AlertPriority[]
 ): RegulatoryInsight[] => {
-  // Get and filter OpenAI mock insights
-  const openAIMockInsights = getOpenAIMockInsights();
-  const filteredOpenAIInsights = selectedTopicIds.length > 0
-    ? openAIMockInsights.filter(insight => selectedTopicIds.includes(insight.topicId))
-    : openAIMockInsights;
-
-  // Combine real and mock insights
-  const combinedInsights: RegulatoryInsight[] = [...dbInsights, ...filteredOpenAIInsights];
+  // If no topics selected, show all insights filtered by priority
+  let filteredInsights = insights;
+  
+  // Filter insights by topic if topics are selected
+  if (selectedTopicIds.length > 0) {
+    filteredInsights = insights.filter(insight => 
+      selectedTopicIds.includes(insight.topicId)
+    );
+  }
 
   // Apply priority filter
-  const priorityFilteredInsights = combinedInsights.filter(insight => 
+  filteredInsights = filteredInsights.filter(insight => 
     priorityFilter.includes(insight.priority)
   );
 
   // Sort by priority
-  return priorityFilteredInsights.sort((a, b) => 
+  return filteredInsights.sort((a, b) => 
     priorityOrder[a.priority] - priorityOrder[b.priority]
   );
 };

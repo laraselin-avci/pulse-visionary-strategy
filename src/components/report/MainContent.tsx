@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TopicFilter } from '@/components/dashboard/TopicFilter';
 import { InsightsTable } from '@/components/dashboard/InsightsTable';
@@ -33,13 +32,10 @@ export const MainContent: React.FC<MainContentProps> = ({
   priorityFilter,
   onPriorityFilterChange
 }) => {
-  
   const handlePriorityToggle = (priority: AlertPriority) => {
     if (priorityFilter.includes(priority)) {
-      // Remove priority if already selected
       onPriorityFilterChange(priorityFilter.filter(p => p !== priority));
     } else {
-      // Add priority if not selected
       onPriorityFilterChange([...priorityFilter, priority]);
     }
   };

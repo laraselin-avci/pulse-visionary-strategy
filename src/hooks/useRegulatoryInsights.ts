@@ -1,11 +1,12 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { RegulatoryInsight } from '@/types/regulatory';
 import { AlertPriority } from '@/components/ui/alert-card';
 import { 
   fetchInsightsFromDatabase, 
-  formatDatabaseInsights, 
-  combineAndFilterInsights 
+  formatDatabaseInsights,
+  filterInsightsByTopicAndPriority 
 } from '@/utils/insightUtils';
 
 // Re-export priorityOrder and RegulatoryInsight interface for backward compatibility
@@ -13,7 +14,7 @@ export { priorityOrder, type RegulatoryInsight } from '@/types/regulatory';
 
 export const useRegulatoryInsights = (
   selectedTopicIds: string[] = [],
-  priorityFilter: AlertPriority[] = ['urgent', 'high', 'medium', 'low']
+  priorityFilter: AlertPriority[] = ['urgent', 'high', 'medium', 'low', 'info']
 ) => {
   const { toast } = useToast();
   const [insights, setInsights] = useState<RegulatoryInsight[]>([]);
@@ -23,26 +24,14 @@ export const useRegulatoryInsights = (
     const fetchInsights = async () => {
       setIsLoading(true);
       try {
-        let query = fetchInsightsFromDatabase();
-
-        if (selectedTopicIds.length > 0) {
-          // This filtering is now handled by the combineAndFilterInsights function
-          // But we keep the structure similar to the original code
-        }
-
-        const data = await query;
+        // Fetch insights from the database
+        const data = await fetchInsightsFromDatabase();
         
         // Format database insights
         const formattedInsights = formatDatabaseInsights(data || []);
         
-        // Combine, filter, and sort insights
-        const processedInsights = combineAndFilterInsights(
-          formattedInsights,
-          selectedTopicIds,
-          priorityFilter
-        );
-        
-        setInsights(processedInsights);
+        // Store all unfiltered insights
+        setInsights(formattedInsights);
       } catch (error: any) {
         console.error('Error fetching regulatory insights:', error);
         toast({
@@ -56,11 +45,18 @@ export const useRegulatoryInsights = (
     };
 
     fetchInsights();
-  }, [selectedTopicIds, priorityFilter, toast]);
+  }, [toast]);
+
+  // Apply topic and priority filters
+  const filteredInsights = filterInsightsByTopicAndPriority(
+    insights,
+    selectedTopicIds,
+    priorityFilter
+  );
 
   return {
     insights,
     isLoading,
-    filteredInsights: insights,
+    filteredInsights,
   };
 };
