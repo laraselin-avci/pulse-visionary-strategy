@@ -9,6 +9,16 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { Form, FormField, FormItem, FormControl } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const searchSchema = z.object({
+  query: z.string().min(1, "Please enter a search term")
+});
+
+type SearchFormValues = z.infer<typeof searchSchema>;
 
 const Report = () => {
   const { 
@@ -19,21 +29,23 @@ const Report = () => {
     handleTopicClick 
   } = useDashboardData();
   
-  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (searchQuery.trim() === '') return;
-    
+  const form = useForm<SearchFormValues>({
+    resolver: zodResolver(searchSchema),
+    defaultValues: {
+      query: '',
+    },
+  });
+
+  const onSubmit = (values: SearchFormValues) => {
     toast({
       title: "AI Search Initiated",
-      description: `Searching for information about "${searchQuery}"`,
+      description: `Searching for information about "${values.query}"`,
     });
     
-    // Reset search field
-    setSearchQuery('');
+    // Reset form
+    form.reset({ query: '' });
   };
 
   return (
@@ -45,22 +57,37 @@ const Report = () => {
 
       {/* Search Bar */}
       <div className="mb-6 animate-slide-up">
-        <form onSubmit={handleSearch} className="relative max-w-xl mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            className="pl-10 pr-24"
-            placeholder="Ask about any regulatory topic..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Button 
-            type="submit" 
-            className="absolute right-1 top-1 bottom-1 bg-blue-600 hover:bg-blue-700"
-            disabled={!searchQuery.trim()}
-          >
-            Search
-          </Button>
-        </form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="query"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="relative max-w-xl">
+                    <FormControl>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          className="pl-10 pr-24 bg-white border-gray-200 focus-visible:ring-blue-500 shadow-sm"
+                          placeholder="Ask about any regulatory topic..."
+                          {...field}
+                        />
+                        <Button 
+                          type="submit" 
+                          className="absolute right-1 top-1 bottom-1 bg-blue-600 hover:bg-blue-700 transition-colors"
+                          disabled={!form.formState.isValid}
+                        >
+                          Search
+                        </Button>
+                      </div>
+                    </FormControl>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
       </div>
 
       {/* Monitored Topics */}
