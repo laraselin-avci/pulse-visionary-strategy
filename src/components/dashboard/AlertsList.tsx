@@ -16,9 +16,10 @@ interface Alert {
 
 interface AlertsListProps {
   alerts: Alert[];
+  showHeader?: boolean;
 }
 
-export const AlertsList: React.FC<AlertsListProps> = ({ alerts }) => {
+export const AlertsList: React.FC<AlertsListProps> = ({ alerts, showHeader = false }) => {
   const { toast } = useToast();
 
   const handleAlertClick = (alertId: string) => {
@@ -30,12 +31,14 @@ export const AlertsList: React.FC<AlertsListProps> = ({ alerts }) => {
 
   return (
     <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Recent Alerts</h2>
-        <Button variant="outline" size="sm">
-          View All
-        </Button>
-      </div>
+      {showHeader && (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Recent Alerts</h2>
+          <Button variant="outline" size="sm">
+            View All
+          </Button>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {alerts.map((alert) => (
           <AlertCard

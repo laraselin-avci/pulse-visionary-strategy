@@ -102,7 +102,7 @@ const Report = () => {
       {/* Insights/Alerts */}
       <div className="mt-8">
         <h2 className="text-lg font-semibold mb-4">Regulatory Alerts</h2>
-        <AlertsList alerts={filteredAlerts} />
+        <AlertsList alerts={filteredAlerts} showHeader={false} />
       </div>
     </MainLayout>
   );
