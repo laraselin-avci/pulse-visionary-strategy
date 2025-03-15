@@ -22,7 +22,11 @@ const Report = () => {
   const [priorityFilter, setPriorityFilter] = useState<AlertPriority[]>(['urgent', 'high', 'medium', 'low', 'info']);
 
   // Fetch insights from the database
-  const { insights, filteredInsights, isLoading: insightsLoading } = useRegulatoryInsights(selectedTopicIds, priorityFilter);
+  const { insights, filteredInsights, isLoading: insightsLoading } = useRegulatoryInsights(
+    topics,
+    selectedTopicIds, 
+    priorityFilter
+  );
 
   // Initialize selected topics from localStorage
   useEffect(() => {
