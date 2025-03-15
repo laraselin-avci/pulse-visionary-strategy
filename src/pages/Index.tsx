@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { AlertCard, AlertPriority } from '@/components/ui/alert-card';
 import { TopicBadge } from '@/components/ui/topic-badge';
@@ -7,6 +7,7 @@ import { StatCard } from '@/components/ui/stat-card';
 import { Bell, Bookmark, FileText, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface Alert {
   id: string;
@@ -26,6 +27,7 @@ interface Topic {
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
   // Mock data for the dashboard
@@ -77,6 +79,14 @@ const Index = () => {
     },
   ];
 
+  // Load selected topics from localStorage
+  useEffect(() => {
+    const savedTopics = localStorage.getItem('selectedTopics');
+    if (savedTopics) {
+      setSelectedTopics(JSON.parse(savedTopics));
+    }
+  }, []);
+
   const handleTopicClick = (topicId: string) => {
     setSelectedTopics((prev) => {
       if (prev.includes(topicId)) {
@@ -92,6 +102,10 @@ const Index = () => {
       title: "Alert details",
       description: "Alert details view would open here.",
     });
+  };
+
+  const handleManageTopics = () => {
+    navigate('/topics');
   };
 
   const filteredAlerts = selectedTopics.length > 0
@@ -141,7 +155,7 @@ const Index = () => {
       <div className="mb-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">Monitored Topics</h2>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleManageTopics}>
             Manage Topics
           </Button>
         </div>

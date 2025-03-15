@@ -5,7 +5,6 @@ import {
   BarChart, 
   Layout, 
   FileText, 
-  Users, 
   Settings,
   AlertTriangle,
   TrendingUp
@@ -25,11 +24,10 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Dashboard', path: '/', icon: Layout },
+  { name: 'Dashboard', path: '/dashboard', icon: Layout },
   { name: 'Alerts', path: '/alerts', icon: AlertTriangle },
   { name: 'Topics', path: '/topics', icon: FileText },
   { name: 'Insights', path: '/insights', icon: TrendingUp },
-  { name: 'Network', path: '/network', icon: Users },
   { name: 'Analytics', path: '/analytics', icon: BarChart },
   { name: 'Settings', path: '/settings', icon: Settings },
 ];

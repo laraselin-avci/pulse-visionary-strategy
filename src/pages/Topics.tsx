@@ -1,11 +1,11 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, Plus, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface Topic {
   id: string;
@@ -16,6 +16,7 @@ interface Topic {
 
 const Topics: React.FC = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
@@ -82,10 +83,16 @@ const Topics: React.FC = () => {
   };
 
   const handleSaveChanges = () => {
+    // Save the selected topics (in a real app this would go to a database)
+    localStorage.setItem('selectedTopics', JSON.stringify(selectedTopics));
+    
     toast({
       title: "Topics updated",
       description: `You are now following ${selectedTopics.length} topics.`,
     });
+    
+    // Navigate to dashboard after saving
+    navigate('/');
   };
 
   const categorizedTopics = categories.map(category => ({
@@ -94,11 +101,31 @@ const Topics: React.FC = () => {
   }));
 
   // Initialize selected topics on component mount
-  React.useEffect(() => {
-    const initialSelected = allTopics
-      .filter(topic => topic.following)
-      .map(topic => topic.id);
-    setSelectedTopics(initialSelected);
+  useEffect(() => {
+    // First check if there are preselected topics from onboarding
+    const preselectedTopics = localStorage.getItem('preselectedTopics');
+    
+    if (preselectedTopics) {
+      // If we have preselected topics, use them and remove the key from localStorage
+      setSelectedTopics(JSON.parse(preselectedTopics));
+      localStorage.removeItem('preselectedTopics');
+      
+      toast({
+        title: "Topics pre-selected",
+        description: "We've selected topics based on your website. You can modify this selection.",
+      });
+    } else {
+      // Otherwise, check for previously saved topics or use default following topics
+      const savedTopics = localStorage.getItem('selectedTopics');
+      if (savedTopics) {
+        setSelectedTopics(JSON.parse(savedTopics));
+      } else {
+        const initialSelected = allTopics
+          .filter(topic => topic.following)
+          .map(topic => topic.id);
+        setSelectedTopics(initialSelected);
+      }
+    }
   }, []);
 
   return (
