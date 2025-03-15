@@ -28,11 +28,9 @@ export const useRegulatoryInsights = (
       try {
         // Fetch insights from the database
         const data = await fetchInsightsFromDatabase();
-        console.log('Raw data from database:', data);
         
         // Format database insights
         const formattedInsights = formatDatabaseInsights(data || []);
-        console.log('Formatted insights:', formattedInsights);
         
         // Store all unfiltered insights
         setInsights(formattedInsights);
@@ -58,12 +56,6 @@ export const useRegulatoryInsights = (
     priorityFilter,
     topics
   );
-
-  // For debugging
-  console.log('All insights:', insights);
-  console.log('Filtered insights:', filteredInsights);
-  console.log('Selected topic IDs:', selectedTopicIds);
-  console.log('Priority filter:', priorityFilter);
 
   return {
     insights,

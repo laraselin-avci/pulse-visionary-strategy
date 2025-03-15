@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TopicFilter } from '@/components/dashboard/TopicFilter';
 import { InsightsTable } from '@/components/dashboard/InsightsTable';
@@ -13,8 +12,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
-import { FilterIcon, DatabaseIcon } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
+import { Filter } from 'lucide-react';
 
 interface MainContentProps {
   topics: Topic[];
@@ -24,20 +22,15 @@ interface MainContentProps {
   filteredInsights: RegulatoryInsight[];
   priorityFilter: AlertPriority[];
   onPriorityFilterChange: (priorities: AlertPriority[]) => void;
-  showAllData?: boolean;
-  onToggleDataView?: () => void;
 }
 
 export const MainContent: React.FC<MainContentProps> = ({
   topics,
   selectedTopics,
   handleTopicClick,
-  insights,
   filteredInsights,
   priorityFilter,
-  onPriorityFilterChange,
-  showAllData = true,
-  onToggleDataView = () => {}
+  onPriorityFilterChange
 }) => {
   const handlePriorityToggle = (priority: AlertPriority) => {
     if (priorityFilter.includes(priority)) {
@@ -71,64 +64,43 @@ export const MainContent: React.FC<MainContentProps> = ({
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">Regulatory Insights</h2>
           
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Switch 
-                id="show-all-data" 
-                checked={showAllData} 
-                onCheckedChange={onToggleDataView}
-              />
-              <label htmlFor="show-all-data" className="text-sm font-medium">
-                Show All Data {showAllData ? '(On)' : '(Off)'}
-              </label>
-            </div>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <FilterIcon className="h-4 w-4 mr-2" />
-                  Filter by Priority
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {priorities.map((priority) => (
-                  <DropdownMenuCheckboxItem
-                    key={priority}
-                    checked={priorityFilter.includes(priority)}
-                    onCheckedChange={() => handlePriorityToggle(priority)}
-                  >
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium mr-2 ${priorityColors[priority]}`}>
-                      {priority}
-                    </span>
-                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
-                  </DropdownMenuCheckboxItem>
-                ))}
-                <DropdownMenuSeparator />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="ml-auto">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter by Priority
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {priorities.map((priority) => (
                 <DropdownMenuCheckboxItem
-                  checked={priorityFilter.length === priorities.length}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      onPriorityFilterChange(priorities);
-                    } else {
-                      onPriorityFilterChange([]);
-                    }
-                  }}
+                  key={priority}
+                  checked={priorityFilter.includes(priority)}
+                  onCheckedChange={() => handlePriorityToggle(priority)}
                 >
-                  Select All
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium mr-2 ${priorityColors[priority]}`}>
+                    {priority}
+                  </span>
+                  {priority.charAt(0).toUpperCase() + priority.slice(1)}
                 </DropdownMenuCheckboxItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem
+                checked={priorityFilter.length === priorities.length}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    onPriorityFilterChange(priorities);
+                  } else {
+                    onPriorityFilterChange([]);
+                  }
+                }}
+              >
+                Select All
+              </DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <div>
-          <div className="mb-2 text-sm text-gray-500">
-            {showAllData 
-              ? `Showing all ${insights.length} insights from database` 
-              : `Showing ${filteredInsights.length} filtered insights`
-            }
-          </div>
-          <InsightsTable insights={filteredInsights} showFullData={true} />
-        </div>
+        <InsightsTable insights={filteredInsights} />
       </div>
     </div>
   );

@@ -1,51 +1,39 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { RegulatoryInsight, priorityOrder } from '@/types/regulatory';
 import { AlertPriority } from '@/components/ui/alert-card';
 
 export const fetchInsightsFromDatabase = async () => {
-  // Fetch all topic analyses without filtering by content_type
+  // Fetch both regular topic analyses and regulatory insights
   const { data, error } = await supabase
     .from('topic_analyses')
-    .select('*');
+    .select('*')
+    .eq('content_type', 'regulatory_insight');
 
   if (error) {
-    console.error('Error fetching data from topic_analyses:', error);
+    console.error('Error fetching regulatory insights:', error);
     throw error;
   }
 
-  console.log('Data fetched from topic_analyses:', data);
   return data || [];
 };
 
 export const formatDatabaseInsights = (data: any[]): RegulatoryInsight[] => {
   return data.map(item => {
-    const analysisData = item.analysis_data;
-    const relevantExtracts = item.relevant_extracts;
+    const analysisData = item.analysis_data as any;
+    const relevantExtracts = item.relevant_extracts as any;
     
     // Map the topic from the array to a string (taking the first topic if there's more than one)
     const topic = item.topics && item.topics.length > 0 ? item.topics[0] : '';
     
     return {
       id: item.id,
-      title: item.summary || (analysisData?.title || ''),
-      description: (relevantExtracts?.description || analysisData?.description || ''),
-      source: (relevantExtracts?.source || analysisData?.source || ''),
+      title: item.summary || analysisData?.title || '',
+      description: relevantExtracts?.description || analysisData?.description || '',
+      source: relevantExtracts?.source || analysisData?.source || '',
       priority: (relevantExtracts?.priority || analysisData?.priority || 'medium') as AlertPriority,
-      date: (relevantExtracts?.date || analysisData?.date || new Date(item.analysis_date).toLocaleString()),
+      date: relevantExtracts?.date || analysisData?.date || new Date(item.analysis_date).toLocaleString(),
       topic: topic,
-      topicId: item.topic_id || '',
-      // Include all additional fields
-      analysisData: analysisData,
-      relevantExtracts: relevantExtracts,
-      keywords: item.keywords,
-      sentiment: item.sentiment,
-      summary: item.summary,
-      topics: item.topics,
-      contentId: item.content_id,
-      contentType: item.content_type,
-      analysisDate: item.analysis_date,
-      analyzedAt: item.analyzed_at
+      topicId: item.topic_id || '' // This might be null based on our database
     };
   });
 };
