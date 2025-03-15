@@ -10,7 +10,7 @@ import { MainContent } from '@/components/report/MainContent';
 import { RegulatoryAssistant } from '@/components/report/RegulatoryAssistant';
 import { useTopicData } from '@/hooks/useTopicData';
 import { useToast } from '@/components/ui/use-toast';
-import { useRegulatoryInsights, priorityOrder } from '@/hooks/useRegulatoryInsights';
+import { useRegulatoryInsights } from '@/hooks/useRegulatoryInsights';
 import { AlertPriority } from '@/components/ui/alert-card';
 
 const Report = () => {
@@ -19,7 +19,7 @@ const Report = () => {
   // Fetch topics from the database
   const { topics, isLoading: topicsLoading } = useTopicData();
   const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
-  const [priorityFilter, setPriorityFilter] = useState<AlertPriority[]>(['urgent', 'high', 'medium', 'low']);
+  const [priorityFilter, setPriorityFilter] = useState<AlertPriority[]>(['urgent', 'high', 'medium', 'low', 'info']);
 
   // Fetch insights from the database
   const { insights, filteredInsights, isLoading: insightsLoading } = useRegulatoryInsights(selectedTopicIds, priorityFilter);

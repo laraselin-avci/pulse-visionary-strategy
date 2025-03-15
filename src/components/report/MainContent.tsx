@@ -5,8 +5,15 @@ import { InsightsTable } from '@/components/dashboard/InsightsTable';
 import { Topic } from '@/types/topics';
 import { RegulatoryInsight } from '@/hooks/useRegulatoryInsights';
 import { AlertPriority } from '@/components/ui/alert-card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu';
+import { Filter } from 'lucide-react';
 
 interface MainContentProps {
   topics: Topic[];
@@ -42,7 +49,10 @@ export const MainContent: React.FC<MainContentProps> = ({
     high: 'bg-orange-100 text-orange-800',
     medium: 'bg-blue-100 text-blue-800',
     low: 'bg-green-100 text-green-800',
+    info: 'bg-gray-100 text-gray-800',
   };
+
+  const priorities: AlertPriority[] = ['urgent', 'high', 'medium', 'low', 'info'];
 
   return (
     <div className="h-full p-4 overflow-auto flex flex-col">
@@ -53,31 +63,47 @@ export const MainContent: React.FC<MainContentProps> = ({
         onTopicClick={handleTopicClick} 
       />
       
-      {/* Priority Filter */}
-      <div className="mb-4">
-        <h3 className="text-sm font-medium text-gray-500 mb-2">Filter by Priority</h3>
-        <div className="flex flex-wrap gap-4">
-          {(['urgent', 'high', 'medium', 'low'] as AlertPriority[]).map((priority) => (
-            <div key={priority} className="flex items-center space-x-2">
-              <Checkbox 
-                id={`priority-${priority}`}
-                checked={priorityFilter.includes(priority)}
-                onCheckedChange={() => handlePriorityToggle(priority)}
-              />
-              <Label 
-                htmlFor={`priority-${priority}`}
-                className={`rounded px-2 py-1 text-xs font-medium capitalize ${priorityColors[priority]}`}
-              >
-                {priority}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </div>
-      
       {/* Insights Table */}
       <div className="mt-4">
-        <h2 className="text-lg font-semibold mb-4">Regulatory Insights</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">Regulatory Insights</h2>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="ml-auto">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter by Priority
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {priorities.map((priority) => (
+                <DropdownMenuCheckboxItem
+                  key={priority}
+                  checked={priorityFilter.includes(priority)}
+                  onCheckedChange={() => handlePriorityToggle(priority)}
+                >
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium mr-2 ${priorityColors[priority]}`}>
+                    {priority}
+                  </span>
+                  {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                </DropdownMenuCheckboxItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem
+                checked={priorityFilter.length === priorities.length}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    onPriorityFilterChange(priorities);
+                  } else {
+                    onPriorityFilterChange([]);
+                  }
+                }}
+              >
+                Select All
+              </DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <InsightsTable insights={filteredInsights} />
       </div>
     </div>
