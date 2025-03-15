@@ -18,7 +18,12 @@ export const useTopicSelection = (topics: any[]) => {
   // Handle topic selection/deselection
   const handleTopicSelect = (topicId: string) => {
     if (selectedTopics.includes(topicId)) {
-      setSelectedTopics(selectedTopics.filter(id => id !== topicId));
+      setSelectedTopics(prevSelected => {
+        const newSelected = prevSelected.filter(id => id !== topicId);
+        // Save to localStorage whenever selection changes
+        localStorage.setItem('selectedTopics', JSON.stringify(newSelected));
+        return newSelected;
+      });
     } else {
       if (selectedTopics.length >= 10) {
         toast({
@@ -28,7 +33,12 @@ export const useTopicSelection = (topics: any[]) => {
         });
         return;
       }
-      setSelectedTopics([...selectedTopics, topicId]);
+      setSelectedTopics(prevSelected => {
+        const newSelected = [...prevSelected, topicId];
+        // Save to localStorage whenever selection changes
+        localStorage.setItem('selectedTopics', JSON.stringify(newSelected));
+        return newSelected;
+      });
     }
   };
 

@@ -11,33 +11,53 @@ import { MainContent } from '@/components/report/MainContent';
 import { RegulatoryAssistant } from '@/components/report/RegulatoryAssistant';
 import { useTopicData } from '@/hooks/useTopicData';
 import { Topic } from '@/types/topics';
+import { useToast } from '@/components/ui/use-toast';
 
 const Report = () => {
+  const { toast } = useToast();
   const { 
     alerts: insights, 
-    filteredAlerts: filteredInsights
+    filteredAlerts: filteredInsights,
+    handleTopicClick
   } = useDashboardData();
   
   // Fetch topics from the database
   const { topics, isLoading } = useTopicData();
   const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
 
-  // Initialize selected topics (select first 3 topics by default if available)
+  // Initialize selected topics from localStorage
   useEffect(() => {
-    if (topics.length > 0 && selectedTopicIds.length === 0) {
+    const savedTopics = localStorage.getItem('selectedTopics');
+    if (savedTopics) {
+      const parsedTopics = JSON.parse(savedTopics);
+      setSelectedTopicIds(parsedTopics);
+    } else if (topics.length > 0 && selectedTopicIds.length === 0) {
+      // Fallback: select first 3 topics by default if no saved selection exists
       const initialSelectedIds = topics.slice(0, 3).map(topic => topic.id);
       setSelectedTopicIds(initialSelectedIds);
+      localStorage.setItem('selectedTopics', JSON.stringify(initialSelectedIds));
     }
   }, [topics]);
 
   // Handle topic selection toggle
-  const handleTopicClick = (topicId: string) => {
+  const handleTopicToggle = (topicId: string) => {
     setSelectedTopicIds(prevSelected => {
+      let newSelected;
       if (prevSelected.includes(topicId)) {
-        return prevSelected.filter(id => id !== topicId);
+        newSelected = prevSelected.filter(id => id !== topicId);
       } else {
-        return [...prevSelected, topicId];
+        if (prevSelected.length >= 10) {
+          toast({
+            title: "Maximum topics reached",
+            description: "You can select up to 10 topics. Please remove some to add more.",
+            variant: "destructive",
+          });
+          return prevSelected;
+        }
+        newSelected = [...prevSelected, topicId];
       }
+      localStorage.setItem('selectedTopics', JSON.stringify(newSelected));
+      return newSelected;
     });
   };
 
@@ -65,7 +85,7 @@ const Report = () => {
             <MainContent 
               topics={topics}
               selectedTopics={selectedTopicIds}
-              handleTopicClick={handleTopicClick}
+              handleTopicClick={handleTopicToggle}
               insights={insights}
               filteredInsights={filteredInsights}
             />
