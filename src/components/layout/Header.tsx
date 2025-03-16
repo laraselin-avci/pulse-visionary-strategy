@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Bell, Settings, User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -41,33 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
         </Link>
       </div>
       
-      <div className="flex items-center space-x-1">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={handleNotificationClick}
-          className="relative hover:bg-gray-100 rounded-full transition-all duration-200"
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 h-2 w-2 bg-politix-crimson rounded-full"></span>
-        </Button>
-        
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="hover:bg-gray-100 rounded-full transition-all duration-200"
-        >
-          <Settings className="h-5 w-5" />
-        </Button>
-        
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="hover:bg-gray-100 rounded-full overflow-hidden transition-all duration-200"
-        >
-          <User className="h-5 w-5" />
-        </Button>
-      </div>
+      
     </header>
   );
 };
