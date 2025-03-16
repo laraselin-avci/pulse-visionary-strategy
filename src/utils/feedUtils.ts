@@ -57,8 +57,8 @@ const tweetTemplates = [
   'Interesting development in {topic}: regulators are now focusing on explainability requirements for high-risk AI systems.',
   'The debate on {topic} is heating up. Industry leaders and policymakers still at odds over the scope of restrictions.',
   'ICYMI: Our webinar on navigating {topic} compliance is now available on-demand. Essential viewing for AI developers.',
-  'The latest {topic} directive introduces mandatory risk assessments for autonomous systems. Here's what you need to know:',
-  'We're seeing a significant shift in how {topic} is being approached by regulators. More emphasis on preventative measures than ever before.'
+  'The latest {topic} directive introduces mandatory risk assessments for autonomous systems. Here\'s what you need to know:',
+  'We\'re seeing a significant shift in how {topic} is being approached by regulators. More emphasis on preventative measures than ever before.'
 ];
 
 // News/RSS templates for AI regulation topics
