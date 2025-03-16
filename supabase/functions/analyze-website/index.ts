@@ -173,9 +173,6 @@ Ensure your response is ONLY the JSON array, with no additional text.
         }
       }
 
-      // Store the website origin to associate topics with this website
-      const websiteOrigin = new URL(websiteUrl).origin;
-
       // Now insert the topics
       const supabaseResponse = await fetch(`${supabaseUrl}/rest/v1/topics`, {
         method: 'POST',
@@ -194,8 +191,7 @@ Ensure your response is ONLY the JSON array, with no additional text.
             user_id: temporaryUserId,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-            category: null,
-            source_website: websiteOrigin // Add source website to track which website the topic is for
+            category: null
           }))
         )
       });

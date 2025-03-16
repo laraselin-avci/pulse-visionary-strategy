@@ -4,7 +4,6 @@ import { Topic } from '@/types/topics';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { formatTopicsFromSupabase } from '@/utils/topicUtils';
-import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 
 export const useTopicData = () => {
   const { toast } = useToast();
@@ -15,32 +14,10 @@ export const useTopicData = () => {
   const fetchTopics = async () => {
     setIsLoading(true);
     try {
-      // Get the analyzed website from localStorage
-      const analyzedWebsite = localStorage.getItem('analyzedWebsite');
-      
       // Fetch topics from Supabase
-      let query = supabase.from('topics').select('*');
-      
-      // If we have an analyzed website, filter topics to only those from that website
-      if (analyzedWebsite) {
-        // Instead of chaining methods which causes TS to create deep type instantiations,
-        // we'll use a different approach by directly awaiting the query result
-        const { data, error } = await supabase
-          .from('topics')
-          .select('*')
-          .eq('source_website', analyzedWebsite);
-          
-        if (error) throw error;
-        
-        // If successful, format and set the topics
-        const formattedTopics = formatTopicsFromSupabase(data || []);
-        setTopics(formattedTopics);
-        setIsLoading(false);
-        return;
-      }
-      
-      // If no analyzed website, proceed with the unfiltered query
-      const { data, error } = await query;
+      const { data, error } = await supabase
+        .from('topics')
+        .select('*');
 
       if (error) {
         console.error('Error fetching topics:', error);
@@ -75,9 +52,6 @@ export const useTopicData = () => {
       // this should be replaced with the actual authenticated user's ID.
       const temporaryUserId = '00000000-0000-0000-0000-000000000000';
       
-      // Get the analyzed website from localStorage
-      const analyzedWebsite = localStorage.getItem('analyzedWebsite');
-      
       // Add new topic to Supabase
       const { data: newTopicData, error } = await supabase
         .from('topics')
@@ -86,8 +60,7 @@ export const useTopicData = () => {
           description: topicData.description,
           is_public: false,
           keywords: [], // Default empty array
-          user_id: temporaryUserId, // Use a fixed user ID for development
-          source_website: analyzedWebsite || null // Associate with the analyzed website
+          user_id: temporaryUserId // Use a fixed user ID for development
         })
         .select();
 
