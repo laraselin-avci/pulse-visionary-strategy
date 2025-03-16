@@ -10,6 +10,7 @@ import * as z from 'zod';
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from '@/integrations/supabase/client';
 import { useRegulatoryInsights } from '@/hooks/useRegulatoryInsights';
+import ReactMarkdown from 'react-markdown';
 
 const chatSchema = z.object({
   message: z.string().min(1, "Please enter a message")
@@ -164,7 +165,13 @@ export const RegulatoryAssistant: React.FC = () => {
                       : 'bg-gray-100 text-gray-800 rounded-tl-none'
                   }`}
                 >
-                  {message.content}
+                  {message.isUser ? (
+                    message.content
+                  ) : (
+                    <ReactMarkdown className="prose prose-sm max-w-none">
+                      {message.content}
+                    </ReactMarkdown>
+                  )}
                 </div>
                 <div className={`text-xs text-gray-500 mt-1 ${message.isUser ? 'text-right' : 'text-left'}`}>
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
