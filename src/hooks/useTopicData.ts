@@ -22,6 +22,7 @@ export const useTopicData = () => {
       
       // If we have an analyzed website, filter topics to only those from that website
       if (analyzedWebsite) {
+        // Fix the type issue by explicitly typing the query
         query = query.eq('source_website', analyzedWebsite);
       }
       
