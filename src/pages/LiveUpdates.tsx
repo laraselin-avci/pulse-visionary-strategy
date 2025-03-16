@@ -1,38 +1,40 @@
 
 import React, { useEffect, useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Newspaper, Calendar, ExternalLink, AlertCircle, ArrowRight, Tag, Clock } from 'lucide-react';
+import { Newspaper, Calendar, ExternalLink, AlertCircle, ArrowRight, Tag, Clock, Bell, Twitter, Rss } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import { TopicBadge } from '@/components/ui/topic-badge';
-
-// Mock news interface
-interface NewsItem {
-  id: string;
-  title: string;
-  summary: string;
-  source: string;
-  date: string;
-  url: string;
-  topic: string;
-  type: 'article' | 'legislation' | 'announcement';
-  importance: 'high' | 'medium' | 'low';
-}
+import { allTopics } from '@/data/topics';
+import { Topic } from '@/types/topics';
+import { FeedItem as FeedItemType, generateMockFeedItems } from '@/utils/feedUtils';
+import { FeedItem } from '@/components/live-feed/FeedItem';
+import { TopicFilter } from '@/components/dashboard/TopicFilter';
 
 const LiveUpdates = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
-  const [filteredNews, setFilteredNews] = useState<NewsItem[]>([]);
+  const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
+  const [feedItems, setFeedItems] = useState<FeedItemType[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
   
-  // Fetch selected topics
+  // Load topics and selected topics from localStorage
   useEffect(() => {
+    // Get selected topics from localStorage
     const savedTopics = localStorage.getItem('selectedTopics');
     if (savedTopics) {
-      setSelectedTopics(JSON.parse(savedTopics));
+      setSelectedTopicIds(JSON.parse(savedTopics));
     }
+    
+    // Filter to only AI-related topics for this demo
+    const aiTopics = allTopics.filter(topic => 
+      topic.name.toLowerCase().includes('ai') || 
+      topic.category?.toLowerCase().includes('ai') ||
+      topic.description.toLowerCase().includes('ai')
+    );
+    
+    setTopics(aiTopics);
     
     // Simulate loading time
     setTimeout(() => {
@@ -40,137 +42,61 @@ const LiveUpdates = () => {
     }, 1000);
   }, []);
   
-  // Generate mock news data
+  // Generate initial feed items
   useEffect(() => {
-    // Mock news data (will be replaced with real data later)
-    const mockNews: NewsItem[] = [
-      {
-        id: '1',
-        title: 'New Solar Subsidy Program Announced',
-        summary: 'The government has announced a new subsidy program for residential solar installations, offering up to 40% coverage of installation costs.',
-        source: 'Ministry of Energy',
-        date: '2 hours ago',
-        url: '#',
-        topic: 'Solar Subsidies',
-        type: 'announcement',
-        importance: 'high'
-      },
-      {
-        id: '2',
-        title: 'Carbon Tax Increase Scheduled for Next Quarter',
-        summary: 'The carbon tax will increase from €25 to €35 per ton starting next quarter, according to a new policy document released yesterday.',
-        source: 'Environmental Agency',
-        date: '1 day ago',
-        url: '#',
-        topic: 'Carbon Pricing',
-        type: 'legislation',
-        importance: 'high'
-      },
-      {
-        id: '3',
-        title: 'Healthcare Reform Bill Enters Final Reading',
-        summary: 'The comprehensive healthcare reform bill has entered its final reading in parliament, with a vote expected next week.',
-        source: 'Parliament News',
-        date: '3 days ago',
-        url: '#',
-        topic: 'Healthcare Reform',
-        type: 'legislation',
-        importance: 'medium'
-      },
-      {
-        id: '4',
-        title: 'New Report on Renewable Energy Implementation',
-        summary: 'A new industry report shows that renewable energy implementation has increased by 27% in the last fiscal year.',
-        source: 'Energy Commission',
-        date: '5 days ago',
-        url: '#',
-        topic: 'Renewable Energy',
-        type: 'article',
-        importance: 'medium'
-      },
-      {
-        id: '5',
-        title: 'AI Ethics Guidelines Published',
-        summary: 'The Technology Council has published new ethics guidelines for AI implementation in public services.',
-        source: 'Technology Council',
-        date: '1 week ago',
-        url: '#',
-        topic: 'AI Regulation',
-        type: 'announcement',
-        importance: 'medium'
-      },
-      {
-        id: '6',
-        title: 'Education Funding Increase Approved',
-        summary: 'Parliament has approved a 12% increase in education funding for the next fiscal year, with a focus on digital learning resources.',
-        source: 'Education Ministry',
-        date: '1 week ago',
-        url: '#',
-        topic: 'Education Funding',
-        type: 'legislation',
-        importance: 'medium'
-      },
-      {
-        id: '7',
-        title: 'Pharmaceutical Price Controls Under Review',
-        summary: 'The Health Commission is reviewing the current price control mechanisms for essential medications.',
-        source: 'Health Commission',
-        date: '2 weeks ago',
-        url: '#',
-        topic: 'Pharmaceutical Pricing',
-        type: 'article',
-        importance: 'low'
-      }
-    ];
-    
-    setNewsItems(mockNews);
-  }, []);
-  
-  // Filter news based on selected topics
-  useEffect(() => {
-    if (selectedTopics.length === 0) {
-      setFilteredNews(newsItems);
-    } else {
-      const filtered = newsItems.filter(news => 
-        selectedTopics.some(topicId => {
-          // This is a simplification; in a real app, you'd match topic IDs to names more robustly
-          const topicMap: {[key: string]: string} = {
-            '1': 'Solar Subsidies',
-            '5': 'Carbon Pricing',
-            '7': 'Healthcare Reform',
-            '4': 'Renewable Energy',
-            '6': 'AI Regulation',
-            '9': 'Education Funding',
-            '8': 'Pharmaceutical Pricing'
-          };
-          return news.topic === topicMap[topicId];
-        })
-      );
-      setFilteredNews(filtered);
+    if (!loading && topics.length > 0) {
+      const selectedTopics = topics.filter(topic => selectedTopicIds.includes(topic.id));
+      const topicsToUse = selectedTopics.length > 0 ? selectedTopics : topics;
+      
+      // Generate 5 initial items
+      const initialItems = generateMockFeedItems(topicsToUse, 5);
+      setFeedItems(initialItems);
+      
+      // Start the "real-time" updates
+      const intervalId = setInterval(() => {
+        const newItem = generateMockFeedItems(topicsToUse, 1)[0];
+        
+        // Add the new item at the top of the feed
+        setFeedItems(prev => [newItem, ...prev].slice(0, 20)); // Keep only last 20 items
+        
+        // Notify with a toast occasionally (1 in 3 chance)
+        if (Math.random() > 0.7) {
+          toast({
+            title: newItem.type === 'tweet' ? "New Tweet" : "New Article",
+            description: newItem.content.substring(0, 80) + "...",
+          });
+        }
+      }, 5000 + Math.floor(Math.random() * 5000)); // Random interval between 5-10 seconds
+      
+      return () => clearInterval(intervalId);
     }
-  }, [newsItems, selectedTopics]);
+  }, [loading, topics, selectedTopicIds, toast]);
   
-  // Get icon based on news type
-  const getNewsIcon = (type: string) => {
-    switch (type) {
-      case 'article':
-        return <Newspaper className="h-5 w-5 text-blue-500" />;
-      case 'legislation':
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
-      case 'announcement':
-        return <Calendar className="h-5 w-5 text-green-500" />;
-      default:
-        return <Newspaper className="h-5 w-5 text-blue-500" />;
-    }
+  // Handle topic selection/deselection
+  const handleTopicClick = (topicId: string) => {
+    setSelectedTopicIds(prev => {
+      const newSelection = prev.includes(topicId)
+        ? prev.filter(id => id !== topicId)
+        : [...prev, topicId];
+      
+      localStorage.setItem('selectedTopics', JSON.stringify(newSelection));
+      return newSelection;
+    });
   };
   
   const handleRefresh = () => {
     setLoading(true);
     setTimeout(() => {
+      // Generate new items on refresh
+      const selectedTopics = topics.filter(topic => selectedTopicIds.includes(topic.id));
+      const topicsToUse = selectedTopics.length > 0 ? selectedTopics : topics;
+      const newItems = generateMockFeedItems(topicsToUse, 5);
+      setFeedItems(newItems);
+      
       setLoading(false);
       toast({
         title: "Feed refreshed",
-        description: "Your news feed has been updated with the latest information.",
+        description: "Your live feed has been updated with the latest information.",
       });
     }, 1000);
   };
@@ -182,9 +108,17 @@ const LiveUpdates = () => {
         <p className="text-gray-600">Real-time regulatory information and updates</p>
       </div>
       
+      {/* Topic filter section */}
+      <TopicFilter 
+        topics={topics}
+        selectedTopics={selectedTopicIds}
+        onTopicClick={handleTopicClick}
+      />
+      
       <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
-          Showing updates for your selected topics
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Bell className="h-4 w-4 text-blue-500" />
+          <span>Live updates for your selected topics</span>
         </div>
         <Button 
           onClick={handleRefresh}
@@ -215,44 +149,16 @@ const LiveUpdates = () => {
             </div>
           ))}
         </div>
-      ) : filteredNews.length > 0 ? (
+      ) : feedItems.length > 0 ? (
         <div className="space-y-4">
-          {filteredNews.map((item) => (
-            <div 
-              key={item.id} 
-              className="bg-white rounded-lg border p-5 shadow-sm hover:shadow-md transition-all duration-200"
-            >
-              <div className="flex gap-3">
-                <div className="shrink-0 mt-1">
-                  {getNewsIcon(item.type)}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-start justify-between gap-4">
-                    <h3 className="text-lg font-semibold text-gray-900 leading-tight">{item.title}</h3>
-                    <TopicBadge label={item.topic} className="shrink-0" />
-                  </div>
-                  <p className="text-gray-600 mt-2 mb-3">{item.summary}</p>
-                  <div className="flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-1 text-gray-500">
-                      <Tag className="h-3 w-3" />
-                      <span>{item.source}</span>
-                      <span className="mx-2">•</span>
-                      <Clock className="h-3 w-3" />
-                      <span>{item.date}</span>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-800 p-0">
-                      Read more <ArrowRight className="ml-1 h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {feedItems.map((item) => (
+            <FeedItem key={item.id} item={item} />
           ))}
         </div>
       ) : (
         <div className="bg-white rounded-lg border p-8 shadow-sm text-center">
           <div className="mx-auto mb-4 h-12 w-12 text-gray-400">
-            <Newspaper className="h-12 w-12" />
+            <Rss className="h-12 w-12" />
           </div>
           <h3 className="text-lg font-medium mb-2">No updates found</h3>
           <p className="text-gray-600 mb-6 max-w-md mx-auto">
