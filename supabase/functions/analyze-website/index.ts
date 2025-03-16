@@ -132,7 +132,48 @@ Ensure your response is ONLY the JSON array, with no additional text.
     try {
       console.log('Adding topics to Supabase');
       
-      // Make a single request to Supabase to insert all topics
+      // Create the fixed user first if it doesn't exist
+      // Check if user exists first
+      const checkUserResponse = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${temporaryUserId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+          'apikey': `${supabaseServiceKey}`
+        }
+      });
+      
+      const existingUsers = await checkUserResponse.json();
+      
+      // If user doesn't exist, create it first
+      if (!existingUsers || existingUsers.length === 0) {
+        console.log('Creating temporary user for topics');
+        const createUserResponse = await fetch(`${supabaseUrl}/rest/v1/users`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`,
+            'apikey': `${supabaseServiceKey}`,
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            id: temporaryUserId,
+            email: 'temporary@example.com',
+            name: 'Temporary User',
+            created_at: new Date().toISOString()
+          })
+        });
+        
+        if (!createUserResponse.ok) {
+          const error = await createUserResponse.text();
+          console.error('Error creating temporary user:', error);
+          // Continue anyway, the user might exist in a way we can't see
+        } else {
+          console.log('Successfully created temporary user');
+        }
+      }
+
+      // Now insert the topics
       const supabaseResponse = await fetch(`${supabaseUrl}/rest/v1/topics`, {
         method: 'POST',
         headers: {
@@ -147,7 +188,10 @@ Ensure your response is ONLY the JSON array, with no additional text.
             description: topic.description,
             is_public: false,
             keywords: [], // Default empty array
-            user_id: temporaryUserId
+            user_id: temporaryUserId,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            category: null
           }))
         )
       });
