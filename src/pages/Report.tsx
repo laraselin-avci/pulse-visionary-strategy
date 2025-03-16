@@ -38,6 +38,19 @@ const Report = () => {
 
   // Initialize selected topics from localStorage
   useEffect(() => {
+    // First check if we have stored topic IDs from analysis
+    const analyzedTopicIds = localStorage.getItem('analyzedWebsiteTopicIds');
+    
+    if (analyzedTopicIds) {
+      const parsedIds = JSON.parse(analyzedTopicIds);
+      if (parsedIds && parsedIds.length > 0) {
+        setSelectedTopicIds(parsedIds);
+        localStorage.setItem('selectedTopics', JSON.stringify(parsedIds));
+        return;
+      }
+    }
+    
+    // Fallback to regular selected topics
     const savedTopics = localStorage.getItem('selectedTopics');
     if (savedTopics) {
       const parsedTopics = JSON.parse(savedTopics);

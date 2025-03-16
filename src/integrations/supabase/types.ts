@@ -181,6 +181,7 @@ export type Database = {
           is_public: boolean
           keywords: string[]
           name: string
+          topics_source: string | null
           updated_at: string
           user_id: string
         }
@@ -192,6 +193,7 @@ export type Database = {
           is_public?: boolean
           keywords: string[]
           name: string
+          topics_source?: string | null
           updated_at?: string
           user_id: string
         }
@@ -203,6 +205,7 @@ export type Database = {
           is_public?: boolean
           keywords?: string[]
           name?: string
+          topics_source?: string | null
           updated_at?: string
           user_id?: string
         }
