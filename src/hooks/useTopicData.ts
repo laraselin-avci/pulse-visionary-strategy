@@ -4,6 +4,7 @@ import { Topic } from '@/types/topics';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { formatTopicsFromSupabase } from '@/utils/topicUtils';
+import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 
 export const useTopicData = () => {
   const { toast } = useToast();
@@ -22,8 +23,9 @@ export const useTopicData = () => {
       
       // If we have an analyzed website, filter topics to only those from that website
       if (analyzedWebsite) {
-        // Fix the type issue by explicitly typing the query
-        query = query.eq('source_website', analyzedWebsite);
+        // Use a properly typed variable to avoid infinite type instantiation
+        const filteredQuery = query.eq('source_website', analyzedWebsite);
+        query = filteredQuery;
       }
       
       const { data, error } = await query;
