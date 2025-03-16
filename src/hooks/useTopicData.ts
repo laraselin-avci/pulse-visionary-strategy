@@ -10,24 +10,14 @@ export const useTopicData = () => {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch specific topics by UUIDs from localStorage
+  // Fetch topics from Supabase
   const fetchTopics = async () => {
     setIsLoading(true);
     try {
-      // Check for stored topic IDs from analyzed website
-      const storedTopicIds = localStorage.getItem('analyzedWebsiteTopicIds');
-      let query = supabase.from('topics').select('*');
-      
-      // If we have specific topic IDs, only fetch those
-      if (storedTopicIds) {
-        const topicIds = JSON.parse(storedTopicIds);
-        if (topicIds && topicIds.length > 0) {
-          console.log('Fetching specific topics:', topicIds);
-          query = query.in('id', topicIds);
-        }
-      }
-      
-      const { data, error } = await query;
+      // Fetch topics from Supabase
+      const { data, error } = await supabase
+        .from('topics')
+        .select('*');
 
       if (error) {
         console.error('Error fetching topics:', error);
@@ -42,7 +32,6 @@ export const useTopicData = () => {
       // Convert Supabase data to Topic type
       const formattedTopics = formatTopicsFromSupabase(data);
       setTopics(formattedTopics);
-      console.log('Fetched topics:', formattedTopics.length);
     } catch (error: any) {
       console.error('Error fetching topics:', error);
       toast({
@@ -71,8 +60,7 @@ export const useTopicData = () => {
           description: topicData.description,
           is_public: false,
           keywords: [], // Default empty array
-          user_id: temporaryUserId, // Use a fixed user ID for development
-          topics_source: localStorage.getItem('analyzedWebsite') || null // Store the source website
+          user_id: temporaryUserId // Use a fixed user ID for development
         })
         .select();
 
@@ -98,12 +86,6 @@ export const useTopicData = () => {
         };
         
         setTopics(prevTopics => [...prevTopics, newTopic]);
-        
-        // Add the new topic ID to our stored IDs
-        const storedTopicIds = localStorage.getItem('analyzedWebsiteTopicIds');
-        let topicIds = storedTopicIds ? JSON.parse(storedTopicIds) : [];
-        topicIds.push(newTopic.id);
-        localStorage.setItem('analyzedWebsiteTopicIds', JSON.stringify(topicIds));
         
         toast({
           title: "Topic added",

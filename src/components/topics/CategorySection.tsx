@@ -37,7 +37,10 @@ const CategorySection: React.FC<CategorySectionProps> = ({
             {publicTopics.map(topic => (
               <TopicCard
                 key={topic.id}
-                topic={topic}
+                id={topic.id}
+                name={topic.name}
+                description={topic.description}
+                isPublic={topic.is_public}
                 isSelected={selectedTopics.includes(topic.id)}
                 onSelect={onTopicSelect}
                 onEdit={undefined} // Public topics cannot be edited
@@ -54,7 +57,10 @@ const CategorySection: React.FC<CategorySectionProps> = ({
             {customTopics.map(topic => (
               <TopicCard
                 key={topic.id}
-                topic={topic}
+                id={topic.id}
+                name={topic.name}
+                description={topic.description}
+                isPublic={topic.is_public}
                 isSelected={selectedTopics.includes(topic.id)}
                 onSelect={onTopicSelect}
                 onEdit={onEditTopic ? () => onEditTopic(topic) : undefined}

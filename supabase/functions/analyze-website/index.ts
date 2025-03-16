@@ -191,8 +191,7 @@ Ensure your response is ONLY the JSON array, with no additional text.
             user_id: temporaryUserId,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-            category: null,
-            topics_source: websiteUrl // Store the source website URL
+            category: null
           }))
         )
       });
@@ -210,15 +209,8 @@ Ensure your response is ONLY the JSON array, with no additional text.
       // Continue with process even if some topics failed to be inserted
     }
 
-    // Extract just the IDs for the frontend
-    const topicIds = addedTopics.map(topic => topic.id);
-    
     return new Response(
-      JSON.stringify({ 
-        topics: extractedTopics, 
-        addedTopics,
-        topicIds // Include topic IDs in the response
-      }),
+      JSON.stringify({ topics: extractedTopics, addedTopics }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -56,7 +55,7 @@ export const useTopicSelection = (topics: any[]) => {
       });
       
       // Navigate to dashboard after saving
-      navigate('/report');
+      navigate('/');
     } catch (error) {
       console.error('Error saving topic selections:', error);
       toast({

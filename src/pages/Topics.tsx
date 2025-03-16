@@ -6,12 +6,8 @@ import CategorySection from '@/components/topics/CategorySection';
 import TopicForm from '@/components/topics/TopicForm';
 import { useTopics } from '@/hooks/useTopics';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 
 const Topics: React.FC = () => {
-  const navigate = useNavigate();
-  
   const {
     searchQuery,
     selectedTopics,
@@ -23,26 +19,15 @@ const Topics: React.FC = () => {
     handleTopicFormSubmit,
     isTopicFormOpen,
     setIsTopicFormOpen,
-    editingTopic,
-    handleSaveChanges,
+    editingTopic
   } = useTopics();
-
-  const analyzedWebsite = localStorage.getItem('analyzedWebsite');
 
   return (
     <MainLayout>
-      <div className="mb-2">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Monitoring Topics</h1>
         <p className="text-gray-600">Select topics that matter to your organization (5-10 recommended)</p>
       </div>
-
-      {analyzedWebsite && (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-          <p className="text-sm text-blue-700">
-            Showing topics generated for: <span className="font-semibold">{analyzedWebsite}</span>
-          </p>
-        </div>
-      )}
 
       <TopicSearch 
         searchQuery={searchQuery} 
@@ -54,9 +39,6 @@ const Topics: React.FC = () => {
           <span className="font-medium">{selectedTopics.length}</span> topics selected 
           <span className="text-gray-400"> (recommended: 5-10)</span>
         </div>
-        <Button variant="outline" size="sm" onClick={handleSaveChanges}>
-          Save Selection
-        </Button>
       </div>
 
       {isLoading ? (
@@ -72,7 +54,7 @@ const Topics: React.FC = () => {
             </div>
           ))}
         </div>
-      ) : categorizedTopics.length > 0 ? (
+      ) : (
         <div className="space-y-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
           {categorizedTopics.map((category) => (
             <CategorySection
@@ -84,13 +66,6 @@ const Topics: React.FC = () => {
               onEditTopic={handleEditTopic}
             />
           ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">No topics found for this website. You can add custom topics.</p>
-          <Button onClick={() => setIsTopicFormOpen(true)}>
-            Add Custom Topic
-          </Button>
         </div>
       )}
 
