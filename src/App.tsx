@@ -24,6 +24,23 @@ const App = () => {
     }
   }, []);
 
+  // Handler for website submission in Onboarding component
+  const handleWebsiteSubmit = (websiteUrl: string) => {
+    // Save the website URL origin to localStorage
+    try {
+      const websiteOrigin = new URL(websiteUrl).origin;
+      localStorage.setItem('analyzedWebsite', websiteOrigin);
+    } catch (error) {
+      console.error('Error parsing website URL:', error);
+      // If parsing fails, store the raw URL
+      localStorage.setItem('analyzedWebsite', websiteUrl);
+    }
+    
+    // Mark as submitted
+    localStorage.setItem('websiteSubmitted', 'true');
+    setHasSubmittedWebsite(true);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -34,7 +51,7 @@ const App = () => {
             <Route path="/report" element={<Report />} />
             <Route path="/topics" element={<Topics />} />
             <Route path="/live-updates" element={<LiveUpdates />} />
-            <Route path="/onboarding" element={<Onboarding onWebsiteSubmit={() => setHasSubmittedWebsite(true)} />} />
+            <Route path="/onboarding" element={<Onboarding onWebsiteSubmit={handleWebsiteSubmit} />} />
             <Route path="/" element={
               hasSubmittedWebsite ? <Navigate to="/report" replace /> : <Navigate to="/onboarding" replace />
             } />

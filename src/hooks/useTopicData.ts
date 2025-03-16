@@ -14,10 +14,18 @@ export const useTopicData = () => {
   const fetchTopics = async () => {
     setIsLoading(true);
     try {
+      // Get the analyzed website from localStorage
+      const analyzedWebsite = localStorage.getItem('analyzedWebsite');
+      
       // Fetch topics from Supabase
-      const { data, error } = await supabase
-        .from('topics')
-        .select('*');
+      let query = supabase.from('topics').select('*');
+      
+      // If we have an analyzed website, filter topics to only those from that website
+      if (analyzedWebsite) {
+        query = query.eq('source_website', analyzedWebsite);
+      }
+      
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching topics:', error);
@@ -52,6 +60,9 @@ export const useTopicData = () => {
       // this should be replaced with the actual authenticated user's ID.
       const temporaryUserId = '00000000-0000-0000-0000-000000000000';
       
+      // Get the analyzed website from localStorage
+      const analyzedWebsite = localStorage.getItem('analyzedWebsite');
+      
       // Add new topic to Supabase
       const { data: newTopicData, error } = await supabase
         .from('topics')
@@ -60,7 +71,8 @@ export const useTopicData = () => {
           description: topicData.description,
           is_public: false,
           keywords: [], // Default empty array
-          user_id: temporaryUserId // Use a fixed user ID for development
+          user_id: temporaryUserId, // Use a fixed user ID for development
+          source_website: analyzedWebsite || null // Associate with the analyzed website
         })
         .select();
 
