@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 
 interface OnboardingProps {
-  onWebsiteSubmit?: () => void;
+  onWebsiteSubmit?: (websiteUrl: string) => void;
 }
 
 const formSchema = z.object({
@@ -98,9 +98,9 @@ const Onboarding: React.FC<OnboardingProps> = ({ onWebsiteSubmit }) => {
       // Show completion for a moment before navigating
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Call the callback if provided
+      // Call the callback if provided, passing the website URL
       if (onWebsiteSubmit) {
-        onWebsiteSubmit();
+        onWebsiteSubmit(values.websiteUrl);
       }
       
       toast({
