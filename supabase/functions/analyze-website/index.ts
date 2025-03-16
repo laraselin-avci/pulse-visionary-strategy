@@ -127,7 +127,7 @@ Ensure your response is ONLY the JSON array, with no additional text.
 
     // Add topics to Supabase
     const temporaryUserId = '00000000-0000-0000-0000-000000000000'; // Same fixed ID used in useTopicData
-    const addedTopics = [];
+    let addedTopics = []; // Fixed: Declare with let instead of trying to reassign a const
 
     try {
       console.log('Adding topics to Supabase');
