@@ -98,7 +98,15 @@ const Topics: React.FC = () => {
                 No topics found for website: <strong>{analyzedWebsite || 'No website specified'}</strong>
               </p>
               <p className="text-gray-500 mb-4">
-                Topics are specific to each website. You can add custom topics below.
+                There could be several reasons for this:
+              </p>
+              <ul className="text-left list-disc pl-8 mb-4 text-gray-500">
+                <li>The URL format might be different (with/without www, http/https, trailing slash)</li>
+                <li>No topics have been analyzed for this website yet</li>
+                <li>The topics might be stored with a different source identifier</li>
+              </ul>
+              <p className="text-gray-500 mb-4">
+                You can add custom topics below or try a different website URL.
               </p>
               <Button 
                 variant="outline" 
