@@ -34,7 +34,6 @@ serve(async (req) => {
     // Format insights data into a clean text representation
     const insightsText = insights.map((insight: any) => {
       return `
-INSIGHT ID: ${insight.id}
 TITLE: ${insight.title}
 DESCRIPTION: ${insight.description}
 SOURCE: ${insight.source}
@@ -48,9 +47,11 @@ TOPIC: ${insight.topic}
     const systemPrompt = `
 You are a specialized AI that analyzes regulatory insights and answers questions about them.
 You have access to a set of regulatory insights that you can reference in your answers.
-Always provide specific references to the insights you're using in your answer.
+When providing references to insights, DO NOT include any numerical IDs or technical identifiers. 
+Instead, refer to insights by their title, source, or topic in a human-readable format.
 Be factual, precise, and only use the information provided in the insights.
 If the information to answer the question is not available in the insights, clearly state that.
+Keep your responses conversational and easy for non-technical users to understand.
     `;
 
     const userPrompt = `
