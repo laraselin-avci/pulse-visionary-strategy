@@ -2,26 +2,23 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Check, Plus, PenLine, Globe } from 'lucide-react';
+import { Topic } from '@/types/topics';
 
 interface TopicCardProps {
-  id: string;
-  name: string;
-  description: string;
+  topic: Topic;
   isSelected: boolean;
-  isPublic?: boolean;
   onSelect: (topicId: string) => void;
   onEdit?: () => void;
 }
 
 const TopicCard: React.FC<TopicCardProps> = ({
-  id,
-  name,
-  description,
+  topic,
   isSelected,
-  isPublic = false,
   onSelect,
   onEdit
 }) => {
+  const { id, name, description, is_public: isPublic } = topic;
+
   return (
     <div 
       className={cn(
