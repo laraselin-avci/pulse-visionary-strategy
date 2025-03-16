@@ -26,14 +26,26 @@ const App = () => {
     
     if (websiteSubmitted === 'true' && analyzedWebsite) {
       setHasSubmittedWebsite(true);
+    } else {
+      // Clear incomplete state if needed
+      if (websiteSubmitted === 'true' && !analyzedWebsite) {
+        localStorage.removeItem('websiteSubmitted');
+      }
     }
   }, []);
 
   // Handle website submission from onboarding
   const handleWebsiteSubmit = (websiteUrl: string) => {
+    // Ensure the URL is properly formatted
+    const formattedUrl = websiteUrl.trim();
+    if (!formattedUrl) {
+      console.error('Empty website URL provided');
+      return;
+    }
+    
     // Store the analyzed website URL in localStorage
-    console.log('Storing analyzed website:', websiteUrl);
-    localStorage.setItem('analyzedWebsite', websiteUrl);
+    console.log('Storing analyzed website:', formattedUrl);
+    localStorage.setItem('analyzedWebsite', formattedUrl);
     localStorage.setItem('websiteSubmitted', 'true');
     setHasSubmittedWebsite(true);
   };

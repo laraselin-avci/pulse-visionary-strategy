@@ -18,20 +18,11 @@ export const useTopicData = () => {
       const sourceWebsite = localStorage.getItem('analyzedWebsite');
       console.log('Fetching topics for website:', sourceWebsite);
       
+      // Fetch all topics first
       let { data, error } = await supabase
         .from('topics')
         .select('*');
       
-      // Filter by source website if available
-      if (sourceWebsite && data) {
-        // Filter after fetching to ensure we handle the data correctly
-        data = data.filter(topic => 
-          topic.topics_source === sourceWebsite || 
-          topic.is_public === true
-        );
-        console.log('Filtered topics count:', data.length);
-      }
-
       if (error) {
         console.error('Error fetching topics:', error);
         toast({
@@ -40,6 +31,27 @@ export const useTopicData = () => {
           variant: "destructive",
         });
         return;
+      }
+
+      console.log('All fetched topics:', data);
+      
+      // Filter by source website if available
+      if (sourceWebsite && data) {
+        // Exact match on the source website URL for custom topics
+        const exactMatches = data.filter(topic => 
+          topic.topics_source === sourceWebsite
+        );
+        
+        // Also include public topics
+        const publicTopics = data.filter(topic => topic.is_public === true);
+        
+        // Combine both sets
+        data = [...exactMatches, ...publicTopics];
+        
+        console.log('Filtered topics - sourceWebsite:', sourceWebsite);
+        console.log('Filtered topics - exact matches:', exactMatches.length);
+        console.log('Filtered topics - public topics:', publicTopics.length);
+        console.log('Filtered topics - combined count:', data.length);
       }
 
       // Convert Supabase data to Topic type

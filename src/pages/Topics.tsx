@@ -6,6 +6,8 @@ import CategorySection from '@/components/topics/CategorySection';
 import TopicForm from '@/components/topics/TopicForm';
 import { useTopics } from '@/hooks/useTopics';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 const Topics: React.FC = () => {
   const {
@@ -20,6 +22,7 @@ const Topics: React.FC = () => {
     isTopicFormOpen,
     setIsTopicFormOpen,
     editingTopic,
+    handleAddTopic,
     topics
   } = useTopics();
 
@@ -39,10 +42,20 @@ const Topics: React.FC = () => {
         <p className="text-gray-600">Select topics that matter to your organization (5-10 recommended)</p>
       </div>
 
-      <TopicSearch 
-        searchQuery={searchQuery} 
-        onSearchChange={handleSearch} 
-      />
+      <div className="flex justify-between items-center mb-4">
+        <TopicSearch 
+          searchQuery={searchQuery} 
+          onSearchChange={handleSearch} 
+        />
+        
+        <Button 
+          onClick={handleAddTopic}
+          size="sm"
+          className="ml-2"
+        >
+          <Plus className="h-4 w-4 mr-1" /> Add Topic
+        </Button>
+      </div>
 
       <div className="flex justify-between items-center mb-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
         <div className="text-sm text-gray-600">
@@ -79,7 +92,12 @@ const Topics: React.FC = () => {
             ))
           ) : (
             <div className="p-8 text-center bg-white rounded-lg border border-politix-gray">
-              <p className="text-gray-500">No topics found for this website. You can add custom topics or analyze another website.</p>
+              <p className="text-gray-500 mb-4">
+                No topics found for this website: {localStorage.getItem('analyzedWebsite') || 'No website specified'}
+              </p>
+              <Button variant="outline" onClick={handleAddTopic}>
+                <Plus className="h-4 w-4 mr-1" /> Add Custom Topic
+              </Button>
             </div>
           )}
         </div>
