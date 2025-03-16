@@ -1,6 +1,16 @@
 
 import { AlertPriority } from '@/components/ui/alert-card';
 
+// Define priority order for sorting
+export const priorityOrder: { [key in AlertPriority]: number } = {
+  urgent: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+  info: 4
+};
+
+// Regulatory insight interface
 export interface RegulatoryInsight {
   id: string;
   title: string;
@@ -9,13 +19,8 @@ export interface RegulatoryInsight {
   priority: AlertPriority;
   date: string;
   topic: string;
-  topicId: string;
+  relevantExtracts?: any; // Can be string[], object, or string
+  topicId?: string;
+  contentId?: string;
+  contentType?: string;
 }
-
-export const priorityOrder: Record<AlertPriority, number> = {
-  urgent: 1,
-  high: 2,
-  medium: 3,
-  low: 4,
-  info: 5
-};
