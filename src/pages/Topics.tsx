@@ -35,6 +35,8 @@ const Topics: React.FC = () => {
     console.log('Selected topics:', selectedTopics);
   }, [topics, categorizedTopics, selectedTopics]);
 
+  const analyzedWebsite = localStorage.getItem('analyzedWebsite');
+
   return (
     <MainLayout>
       <div className="mb-6">
@@ -93,9 +95,16 @@ const Topics: React.FC = () => {
           ) : (
             <div className="p-8 text-center bg-white rounded-lg border border-politix-gray">
               <p className="text-gray-500 mb-4">
-                No topics found for this website: {localStorage.getItem('analyzedWebsite') || 'No website specified'}
+                No topics found for website: <strong>{analyzedWebsite || 'No website specified'}</strong>
               </p>
-              <Button variant="outline" onClick={handleAddTopic}>
+              <p className="text-gray-500 mb-4">
+                Topics are specific to each website. You can add custom topics below.
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={handleAddTopic}
+                className="mt-2"
+              >
                 <Plus className="h-4 w-4 mr-1" /> Add Custom Topic
               </Button>
             </div>

@@ -18,6 +18,13 @@ export const useTopicData = () => {
       const sourceWebsite = localStorage.getItem('analyzedWebsite');
       console.log('Fetching topics for website:', sourceWebsite);
       
+      if (!sourceWebsite) {
+        console.warn('No analyzed website URL found in localStorage');
+        setIsLoading(false);
+        setTopics([]);
+        return;
+      }
+      
       // Fetch all topics first
       let { data, error } = await supabase
         .from('topics')
@@ -30,28 +37,24 @@ export const useTopicData = () => {
           description: error.message,
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
-      console.log('All fetched topics:', data);
+      console.log('Raw topics data from Supabase:', data);
       
-      // Filter by source website if available
-      if (sourceWebsite && data) {
-        // Exact match on the source website URL for custom topics
-        const exactMatches = data.filter(topic => 
+      // Filter by exact match on source website URL
+      if (data) {
+        // Extract website-specific topics (exact URL match)
+        const websiteTopics = data.filter(topic => 
           topic.topics_source === sourceWebsite
         );
         
-        // Also include public topics
-        const publicTopics = data.filter(topic => topic.is_public === true);
+        console.log(`Filtered topics for URL "${sourceWebsite}":`, websiteTopics);
+        console.log('Topics count for this website:', websiteTopics.length);
         
-        // Combine both sets
-        data = [...exactMatches, ...publicTopics];
-        
-        console.log('Filtered topics - sourceWebsite:', sourceWebsite);
-        console.log('Filtered topics - exact matches:', exactMatches.length);
-        console.log('Filtered topics - public topics:', publicTopics.length);
-        console.log('Filtered topics - combined count:', data.length);
+        // Use only website-specific topics as requested
+        data = websiteTopics;
       }
 
       // Convert Supabase data to Topic type
