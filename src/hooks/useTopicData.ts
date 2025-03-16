@@ -25,13 +25,14 @@ export const useTopicData = () => {
         return;
       }
       
-      // Fetch all topics first
+      // First, let's try to query directly with a filter
       let { data, error } = await supabase
         .from('topics')
-        .select('*');
+        .select('*')
+        .eq('topics_source', sourceWebsite);
       
       if (error) {
-        console.error('Error fetching topics:', error);
+        console.error('Error fetching topics with filter:', error);
         toast({
           title: "Error fetching topics",
           description: error.message,
@@ -41,20 +42,36 @@ export const useTopicData = () => {
         return;
       }
 
-      console.log('Raw topics data from Supabase:', data);
+      console.log(`Direct query for topics with source "${sourceWebsite}":`, data);
       
-      // Filter by exact match on source website URL
-      if (data) {
-        // Extract website-specific topics (exact URL match)
-        const websiteTopics = data.filter(topic => 
-          topic.topics_source === sourceWebsite
-        );
+      // If no results with direct query, fetch all and filter manually
+      if (!data || data.length === 0) {
+        console.log('No topics found with direct query, fetching all topics and filtering manually');
         
-        console.log(`Filtered topics for URL "${sourceWebsite}":`, websiteTopics);
-        console.log('Topics count for this website:', websiteTopics.length);
+        // Fetch all topics
+        const { data: allTopics, error: allTopicsError } = await supabase
+          .from('topics')
+          .select('*');
         
-        // Use only website-specific topics as requested
-        data = websiteTopics;
+        if (allTopicsError) {
+          console.error('Error fetching all topics:', allTopicsError);
+          setIsLoading(false);
+          return;
+        }
+        
+        console.log('All topics from database:', allTopics);
+        
+        // Manually filter by source
+        if (allTopics) {
+          const filteredTopics = allTopics.filter(topic => {
+            const topicSource = topic.topics_source;
+            console.log(`Comparing topic source: "${topicSource}" with "${sourceWebsite}"`);
+            return topicSource === sourceWebsite;
+          });
+          
+          console.log(`Manually filtered topics for "${sourceWebsite}":`, filteredTopics);
+          data = filteredTopics;
+        }
       }
 
       // Convert Supabase data to Topic type
