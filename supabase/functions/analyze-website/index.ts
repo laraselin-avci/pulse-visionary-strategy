@@ -127,7 +127,7 @@ Ensure your response is ONLY the JSON array, with no additional text.
 
     // Add topics to Supabase
     const temporaryUserId = '00000000-0000-0000-0000-000000000000'; // Same fixed ID used in useTopicData
-    let addedTopics = []; // Fixed: Declare with let instead of trying to reassign a const
+    let addedTopics = []; 
 
     try {
       console.log('Adding topics to Supabase');
@@ -191,7 +191,8 @@ Ensure your response is ONLY the JSON array, with no additional text.
             user_id: temporaryUserId,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-            category: null
+            category: null,
+            topics_source: websiteUrl // Store the source website URL
           }))
         )
       });
@@ -209,8 +210,13 @@ Ensure your response is ONLY the JSON array, with no additional text.
       // Continue with process even if some topics failed to be inserted
     }
 
+    // Store the website URL in localStorage for future reference
     return new Response(
-      JSON.stringify({ topics: extractedTopics, addedTopics }),
+      JSON.stringify({ 
+        topics: extractedTopics, 
+        addedTopics,
+        sourceWebsite: websiteUrl // Return the source website to be stored in localStorage
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }

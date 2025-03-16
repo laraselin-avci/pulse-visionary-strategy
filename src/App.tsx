@@ -24,6 +24,14 @@ const App = () => {
     }
   }, []);
 
+  // Handle website submission from onboarding
+  const handleWebsiteSubmit = (websiteUrl: string) => {
+    // Store the analyzed website URL in localStorage
+    localStorage.setItem('analyzedWebsite', websiteUrl);
+    localStorage.setItem('websiteSubmitted', 'true');
+    setHasSubmittedWebsite(true);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -34,7 +42,7 @@ const App = () => {
             <Route path="/report" element={<Report />} />
             <Route path="/topics" element={<Topics />} />
             <Route path="/live-updates" element={<LiveUpdates />} />
-            <Route path="/onboarding" element={<Onboarding onWebsiteSubmit={() => setHasSubmittedWebsite(true)} />} />
+            <Route path="/onboarding" element={<Onboarding onWebsiteSubmit={handleWebsiteSubmit} />} />
             <Route path="/" element={
               hasSubmittedWebsite ? <Navigate to="/report" replace /> : <Navigate to="/onboarding" replace />
             } />
