@@ -1,13 +1,11 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import TopicSearch from '@/components/topics/TopicSearch';
 import CategorySection from '@/components/topics/CategorySection';
 import TopicForm from '@/components/topics/TopicForm';
 import { useTopics } from '@/hooks/useTopics';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 
 const Topics: React.FC = () => {
   const {
@@ -21,21 +19,8 @@ const Topics: React.FC = () => {
     handleTopicFormSubmit,
     isTopicFormOpen,
     setIsTopicFormOpen,
-    editingTopic,
-    handleAddTopic,
-    topics
+    editingTopic
   } = useTopics();
-
-  // Debugging info
-  useEffect(() => {
-    const analyzedWebsite = localStorage.getItem('analyzedWebsite');
-    console.log('Analyzed website URL:', analyzedWebsite);
-    console.log('All topics:', topics);
-    console.log('Categorized topics:', categorizedTopics);
-    console.log('Selected topics:', selectedTopics);
-  }, [topics, categorizedTopics, selectedTopics]);
-
-  const analyzedWebsite = localStorage.getItem('analyzedWebsite');
 
   return (
     <MainLayout>
@@ -44,20 +29,10 @@ const Topics: React.FC = () => {
         <p className="text-gray-600">Select topics that matter to your organization (5-10 recommended)</p>
       </div>
 
-      <div className="flex justify-between items-center mb-4">
-        <TopicSearch 
-          searchQuery={searchQuery} 
-          onSearchChange={handleSearch} 
-        />
-        
-        <Button 
-          onClick={handleAddTopic}
-          size="sm"
-          className="ml-2"
-        >
-          <Plus className="h-4 w-4 mr-1" /> Add Topic
-        </Button>
-      </div>
+      <TopicSearch 
+        searchQuery={searchQuery} 
+        onSearchChange={handleSearch} 
+      />
 
       <div className="flex justify-between items-center mb-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
         <div className="text-sm text-gray-600">
@@ -81,42 +56,16 @@ const Topics: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          {categorizedTopics.length > 0 ? (
-            categorizedTopics.map((category) => (
-              <CategorySection
-                key={category.name}
-                name={category.name}
-                topics={category.topics}
-                selectedTopics={selectedTopics}
-                onTopicSelect={handleTopicSelect}
-                onEditTopic={handleEditTopic}
-              />
-            ))
-          ) : (
-            <div className="p-8 text-center bg-white rounded-lg border border-politix-gray">
-              <p className="text-gray-500 mb-4">
-                No topics found for website: <strong>{analyzedWebsite || 'No website specified'}</strong>
-              </p>
-              <p className="text-gray-500 mb-4">
-                There could be several reasons for this:
-              </p>
-              <ul className="text-left list-disc pl-8 mb-4 text-gray-500">
-                <li>The URL format might be different (with/without www, http/https, trailing slash)</li>
-                <li>No topics have been analyzed for this website yet</li>
-                <li>The topics might be stored with a different source identifier</li>
-              </ul>
-              <p className="text-gray-500 mb-4">
-                You can add custom topics below or try a different website URL.
-              </p>
-              <Button 
-                variant="outline" 
-                onClick={handleAddTopic}
-                className="mt-2"
-              >
-                <Plus className="h-4 w-4 mr-1" /> Add Custom Topic
-              </Button>
-            </div>
-          )}
+          {categorizedTopics.map((category) => (
+            <CategorySection
+              key={category.name}
+              name={category.name}
+              topics={category.topics}
+              selectedTopics={selectedTopics}
+              onTopicSelect={handleTopicSelect}
+              onEditTopic={handleEditTopic}
+            />
+          ))}
         </div>
       )}
 

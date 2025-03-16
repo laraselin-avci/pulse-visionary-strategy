@@ -40,8 +40,7 @@ export const useTopics = () => {
 
   return {
     // Topic data
-    topics, // Expose raw topics for debugging
-    filteredTopics,
+    topics: filteredTopics,
     isLoading,
     
     // Topic selection
