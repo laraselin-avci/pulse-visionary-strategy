@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import TopicSearch from '@/components/topics/TopicSearch';
 import CategorySection from '@/components/topics/CategorySection';
@@ -19,8 +19,18 @@ const Topics: React.FC = () => {
     handleTopicFormSubmit,
     isTopicFormOpen,
     setIsTopicFormOpen,
-    editingTopic
+    editingTopic,
+    topics
   } = useTopics();
+
+  // Debugging info
+  useEffect(() => {
+    const analyzedWebsite = localStorage.getItem('analyzedWebsite');
+    console.log('Analyzed website URL:', analyzedWebsite);
+    console.log('All topics:', topics);
+    console.log('Categorized topics:', categorizedTopics);
+    console.log('Selected topics:', selectedTopics);
+  }, [topics, categorizedTopics, selectedTopics]);
 
   return (
     <MainLayout>
@@ -56,16 +66,22 @@ const Topics: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          {categorizedTopics.map((category) => (
-            <CategorySection
-              key={category.name}
-              name={category.name}
-              topics={category.topics}
-              selectedTopics={selectedTopics}
-              onTopicSelect={handleTopicSelect}
-              onEditTopic={handleEditTopic}
-            />
-          ))}
+          {categorizedTopics.length > 0 ? (
+            categorizedTopics.map((category) => (
+              <CategorySection
+                key={category.name}
+                name={category.name}
+                topics={category.topics}
+                selectedTopics={selectedTopics}
+                onTopicSelect={handleTopicSelect}
+                onEditTopic={handleEditTopic}
+              />
+            ))
+          ) : (
+            <div className="p-8 text-center bg-white rounded-lg border border-politix-gray">
+              <p className="text-gray-500">No topics found for this website. You can add custom topics or analyze another website.</p>
+            </div>
+          )}
         </div>
       )}
 

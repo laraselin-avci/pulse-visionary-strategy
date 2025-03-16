@@ -16,16 +16,21 @@ export const useTopicData = () => {
     try {
       // Get the source website from localStorage
       const sourceWebsite = localStorage.getItem('analyzedWebsite');
+      console.log('Fetching topics for website:', sourceWebsite);
       
-      let query = supabase.from('topics').select('*');
+      let { data, error } = await supabase
+        .from('topics')
+        .select('*');
       
       // Filter by source website if available
-      if (sourceWebsite) {
-        // Use a simple equals filter instead of complex chaining
-        query = supabase.from('topics').select('*').eq('topics_source', sourceWebsite);
+      if (sourceWebsite && data) {
+        // Filter after fetching to ensure we handle the data correctly
+        data = data.filter(topic => 
+          topic.topics_source === sourceWebsite || 
+          topic.is_public === true
+        );
+        console.log('Filtered topics count:', data.length);
       }
-      
-      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching topics:', error);
@@ -38,7 +43,8 @@ export const useTopicData = () => {
       }
 
       // Convert Supabase data to Topic type
-      const formattedTopics = formatTopicsFromSupabase(data);
+      const formattedTopics = formatTopicsFromSupabase(data || []);
+      console.log('Formatted topics:', formattedTopics);
       setTopics(formattedTopics);
     } catch (error: any) {
       console.error('Error fetching topics:', error);
@@ -62,6 +68,7 @@ export const useTopicData = () => {
       
       // Get the source website from localStorage
       const sourceWebsite = localStorage.getItem('analyzedWebsite');
+      console.log('Adding topic with source:', sourceWebsite);
       
       // Add new topic to Supabase
       const { data: newTopicData, error } = await supabase

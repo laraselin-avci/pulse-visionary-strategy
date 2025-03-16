@@ -19,7 +19,12 @@ const App = () => {
   // Check localStorage on component mount to see if user has already submitted a website
   useEffect(() => {
     const websiteSubmitted = localStorage.getItem('websiteSubmitted');
-    if (websiteSubmitted === 'true') {
+    const analyzedWebsite = localStorage.getItem('analyzedWebsite');
+    
+    console.log('App init - Website submitted:', websiteSubmitted);
+    console.log('App init - Analyzed website:', analyzedWebsite);
+    
+    if (websiteSubmitted === 'true' && analyzedWebsite) {
       setHasSubmittedWebsite(true);
     }
   }, []);
@@ -27,6 +32,7 @@ const App = () => {
   // Handle website submission from onboarding
   const handleWebsiteSubmit = (websiteUrl: string) => {
     // Store the analyzed website URL in localStorage
+    console.log('Storing analyzed website:', websiteUrl);
     localStorage.setItem('analyzedWebsite', websiteUrl);
     localStorage.setItem('websiteSubmitted', 'true');
     setHasSubmittedWebsite(true);
