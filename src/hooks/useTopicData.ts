@@ -23,11 +23,23 @@ export const useTopicData = () => {
       
       // If we have an analyzed website, filter topics to only those from that website
       if (analyzedWebsite) {
-        // Use a properly typed variable to avoid infinite type instantiation
-        const filteredQuery = query.eq('source_website', analyzedWebsite);
-        query = filteredQuery;
+        // Instead of chaining methods which causes TS to create deep type instantiations,
+        // we'll use a different approach by directly awaiting the query result
+        const { data, error } = await supabase
+          .from('topics')
+          .select('*')
+          .eq('source_website', analyzedWebsite);
+          
+        if (error) throw error;
+        
+        // If successful, format and set the topics
+        const formattedTopics = formatTopicsFromSupabase(data || []);
+        setTopics(formattedTopics);
+        setIsLoading(false);
+        return;
       }
       
+      // If no analyzed website, proceed with the unfiltered query
       const { data, error } = await query;
 
       if (error) {
