@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader, Check, PackageOpen } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { supabase } from '@/integrations/supabase/client';
 
 interface OnboardingProps {
   onWebsiteSubmit?: () => void;
@@ -74,24 +75,25 @@ const Onboarding: React.FC<OnboardingProps> = ({ onWebsiteSubmit }) => {
     setIsComplete(false);
     
     try {
-      // This would typically be an API call to analyze the website
       console.log('Website URL submitted:', values.websiteUrl);
       
-      // Simulating API call delay
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Call our Supabase Edge Function to analyze the website
+      const { data, error } = await supabase.functions.invoke('analyze-website', {
+        body: { websiteUrl: values.websiteUrl }
+      });
       
-      // Simulate topic selection based on website analysis
-      const preselectedTopics = ['1', '3', '6']; // IDs that match some topics from the Topics page
+      if (error) {
+        throw new Error(`Edge function error: ${error.message}`);
+      }
       
-      // Store the preselected topics in localStorage (in a real app, this would come from a backend)
-      localStorage.setItem('preselectedTopics', JSON.stringify(preselectedTopics));
-      
-      // Set the flag indicating a website has been submitted
-      localStorage.setItem('websiteSubmitted', 'true');
+      console.log('Analysis results:', data);
       
       // Set progress to 100% and show completion state
       setProgress(100);
       setIsComplete(true);
+      
+      // Store the flag indicating a website has been submitted
+      localStorage.setItem('websiteSubmitted', 'true');
       
       // Show completion for a moment before navigating
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -103,12 +105,12 @@ const Onboarding: React.FC<OnboardingProps> = ({ onWebsiteSubmit }) => {
       
       toast({
         title: "Website analyzed successfully",
-        description: "We've pre-selected topics based on your website content.",
+        description: "We've created topics based on your website content.",
       });
       
       // Navigate to report page instead of dashboard
       navigate('/report');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error analyzing website:', error);
       toast({
         title: "Analysis failed",
